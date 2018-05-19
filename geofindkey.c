@@ -1,30 +1,39 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Date: 09.03.2013
+Date: 2018-05-19
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
+Author: zvezdochiot (https://github.com/zvezdochiot)
+* 
 build:
 $ gcc -o geofindkey geofindkey.c -lm
 sample:
-$ ./geofindkey doc/data.dat key.dat var.dat
+$ ./geofindkey doc/data.dat report.dat
+* 
 file:
 input file doc/data.dat:
+* 
 1 1334.71   285.94 83477.64 87377.60 1.0
 2  563.67 -5197.34 82557.14 81916.51 1.0
 3 4444.27  1153.79 86610.19 88160.39 1.0
 4 -252.07  2881.90 81962.05 90016.34 1.0
-output file key.dat:
+* 
+output file report.dat:
+* 
+key:
 82135.407
 87128.144
-0.9997879942
--0.0272897781
-1.0001603698
--1.56353244
-output file var.dat
+0.999787994227
+-0.027289778074
+1.000160369835
+-1.5635324426
+
+var:
 1 1334.710 285.940 83477.640 87377.600 1 0.002 0.001
 2 563.670 -5197.340 82557.140 81916.510 1 0.016 -0.013
 3 4444.270 1153.790 86610.190 88160.390 1 -0.032 -0.016
 4 -252.070 2881.900 81962.050 90016.340 1 0.013 0.028
+* 
 */
 
 #include <stdio.h>
@@ -42,8 +51,8 @@ int main(int argc, char *argv[])
   int i;
   FILE *fp0, *fp1;
  
-  if (argc < 4) {
-    printf("usage: findkey input-file key-file var-file\n");
+  if (argc < 3) {
+    printf("usage: geofindkey input-file report-file\n");
     exit(EXIT_FAILURE);
   }
  
@@ -107,19 +116,17 @@ int main(int argc, char *argv[])
     printf("can't create %s\n", argv[2]);
     exit(EXIT_FAILURE);
   }
+  fprintf(fp1, "key:\n");
   fprintf(fp1, "%.3f\n", a[0][0]);
   fprintf(fp1, "%.3f\n", a[0][1]);
   fprintf(fp1, "%.12f\n", a[1][0]);
   fprintf(fp1, "%.12f\n", a[1][1]);
   fprintf(fp1, "%.12f\n", scale);
   fprintf(fp1, "%+.10f\n", rotation * 180. / M_PI);
-  fclose(fp1);
+  fprintf(fp1, "\n");
  
   /* вывести данные вместе с невязками */
-  if ((fp1 = fopen(argv[3], "w")) == NULL) {
-    printf("can't create %s\n", argv[3]);
-    exit(EXIT_FAILURE);
-  }
+  fprintf(fp1, "var:\n");
   while (fgets(buf, 1024, fp0) != NULL) {
     sscanf(buf, "%s %lf %lf %lf %lf %lf",
 	   name, &x[0], &x[1], &y[0], &y[1], &wgt);
