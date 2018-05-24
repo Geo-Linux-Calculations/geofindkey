@@ -2,6 +2,10 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/zvezdochiot/geofindkey
 
+1.5
+
+    S-Z-B -> Y-X-H transform
+
 1.4
 
     Elevation Version
