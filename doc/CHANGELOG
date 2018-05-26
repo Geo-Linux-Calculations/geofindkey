@@ -2,6 +2,10 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/zvezdochiot/geofindkey
 
+1.6
+
+    SIter (unknow distance)
+
 1.5
 
     S-Z-B -> Y-X-H transform

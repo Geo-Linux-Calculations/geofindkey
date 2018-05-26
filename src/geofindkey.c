@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 1.5
-Date: 2018-05-24
+Version: 1.6
+Date: 2018-05-26
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
@@ -43,7 +43,7 @@ var:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "1.5"
+#define PVERSION "1.6"
 
 void geofindkeytitle()
 {
@@ -314,6 +314,8 @@ int main(int argc, char *argv[])
             ay = atan2(dy[1], dy[0]);
             da = ay - az;
             da *= 180. / M_PI;
+            if (da > 180) {da -= 360;}
+            if (da < -180) {da += 360;}
             s[4] += da * da * say * wgt;
             s[6] += say * wgt;
             fprintf(fp1, "%s %.4f %.4f %.4f %.4f %.4f %.4f %g %+.4f %+.4f %+.4f %+.10f %+.4f\n", name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, vdz[0], vdz[1], vdz[2], da, ds);
