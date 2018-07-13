@@ -1,16 +1,15 @@
+PROJNAME      = geofindkey
 PROGNAME1     = geofindkey
 PROGNAME2     = geoszbtoyxh
 PROGNAME3     = geositer500
+SRCS          = src
 PROGS         = $(PROGNAME1) $(PROGNAME2) $(PROGNAME3)
 CPP           = gcc
 CFLAGS        = -Wall -s
 LIBS          = -lm
 VER           = 1
-REL           = 6
+REL           = 7
 PREFIX        = /usr/local
-INCPREFIX     = $(PREFIX)/include
-LIBPREFIX     = $(PREFIX)/lib
-MANPREFIX     = $(PREFIX)/share/man/man1
 INSTALL       = install
 LN            = ln -fs
 
@@ -21,16 +20,19 @@ all: $(PROGS)
 clean:
 	rm -f $(PROGS)
 
-$(PROGNAME1): $(PROGNAME1).c
+$(PROGNAME1): $(SRCS)/$(PROGNAME1).c
 	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
 
-$(PROGNAME2): $(PROGNAME2).c
+$(PROGNAME2): $(SRCS)/$(PROGNAME2).c
 	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
 
-$(PROGNAME3): $(PROGNAME3).c
+$(PROGNAME3): $(SRCS)/$(PROGNAME3).c
 	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
 
-install: $(PROGNAME)
+install: $(PROGS)
 	$(INSTALL) -d $(PREFIX)/bin
-	$(INSTALL) -m 0755 $(PROGNAME1) $(PREFIX)/bin/
-	$(INSTALL) -m 0755 $(PROGNAME2) $(PREFIX)/bin/
+	$(INSTALL) -m 0755 $(PROGS) $(PREFIX)/bin/
+	$(INSTALL) -d $(PREFIX)/share/man/man1
+	$(INSTALL) -m 0644 man/man1/*.1 $(PREFIX)/share/man/man1
+	$(INSTALL) -d $(PREFIX)/share/doc/$(PROJNAME)
+	$(INSTALL) -m 0644 LICENSE README.md doc/* $(PREFIX)/share/doc/$(PROJNAME)

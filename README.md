@@ -1,4 +1,4 @@
-# GeoFindKey [![Build Status](http://img.shields.io/travis/zvezdochiot/geofindkey.svg?style=flat)](https://travis-ci.org/zvezdochiot/geofindkey.svg) [![License](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](http://dgt.mit-license.org/)
+# GeoFindKey
 Conformal transformation
 
 Conformal transformation on the plane is widely used in geodesy when creating local coordinate systems in small areas, limited by the size of the settlement.
@@ -11,7 +11,6 @@ See doc/*
 
 The procedure for compiling is:
 
-    cd src
     make
 
 ## SAMPLE

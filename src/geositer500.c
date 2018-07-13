@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 1.6
-Date: 2018-05-26
+Version: 1.7
+Date: 2018-07-13
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -52,50 +52,50 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <unistd.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "1.6"
+#define PVERSION "1.7"
 
 void geositer500title()
 {
-    printf("%s %s\n", PNAME, PVERSION);
+    fprintf(stderr, "%s %s\n", PNAME, PVERSION);
 }
 
 void geositer500usage()
 {
-    printf("usage: geositer500 [option] input-file report-file\n");
-    printf("options:\n");
-    printf("          -h      this help\n");
-    printf("\n");
-    printf("input-file(sample):\n");
-    printf(" OKD-4     -1     74.08666667   234.38916667  7471.2970  14588.7117  98.7445\n");
-    printf(" OKD-5     -1     81.18888889   254.73888889  7474.2548  14589.4514  97.7433\n");
-    printf(" OKD-K3-1  -1     82.43944444   339.05361111  7477.0949  14580.7517  96.8713\n");
-    printf(" OKD-K3-4  -1     70.66833333   161.16        7469.9723  14580.8231  97.6075\n");
-    printf(" OKD-K5P   -1     71.95527778   137.52222222  7469.9811  14579.3211  97.6057\n");
-    printf(" OKD-K7L   -1     83.96444444   17.82444444   7477.1099  14577.8330  96.8789\n");
-    printf(" OKD-K7L   -1     276.03361111  197.82722222  7477.1099  14577.8330  96.8789\n");
-    printf(" OKD-K5P   -1     288.04361111  317.52472222  7469.9811  14579.3211  97.6057\n");
-    printf(" OKD-K3-4  -1     289.32972222  341.16111111  7469.9723  14580.8231  97.6075\n");
-    printf(" OKD-K3-1  -1     277.55583333  159.05805556  7477.0949  14580.7517  96.8713\n");
-    printf(" OKD-5     -1     278.80944444  74.74055556   7474.2548  14589.4514  97.7433\n");
-    printf(" OKD-4     -1     285.91444444  54.38972222   7471.2970  14588.7117  98.7445\n");
-    printf(" OKD-11    3.889  71.6025       313.60777778\n");
-    printf(" OKD-12    3.889  288.39138889  133.60805556\n");
-    printf("\n");
-    printf("report-file(sample):\n");
-    printf(" OKD-4 8.6045 74.08666667 234.38916667 7471.2970 14588.7117 98.7445\n");
-    printf(" OKD-5 8.8697 81.18888889 254.73888889 7474.2548 14589.4514 97.7433\n");
-    printf(" OKD-K3-1 3.6731 82.43944444 339.05361111 7477.0949 14580.7517 96.8713\n");
-    printf(" OKD-K3-4 3.6912 70.66833333 161.16000000 7469.9723 14580.8231 97.6075\n");
-    printf(" OKD-K5P 3.9388 71.95527778 137.52222222 7469.9811 14579.3211 97.6057\n");
-    printf(" OKD-K7L 4.6861 83.96444444 17.82444444 7477.1099 14577.8330 96.8789\n");
-    printf(" OKD-K7L 4.6861 276.03361111 197.82722222 7477.1099 14577.8330 96.8789\n");
-    printf(" OKD-K5P 3.9388 288.04361111 317.52472222 7469.9811 14579.3211 97.6057\n");
-    printf(" OKD-K3-4 3.6912 289.32972222 341.16111111 7469.9723 14580.8231 97.6075\n");
-    printf(" OKD-K3-1 3.6731 277.55583333 159.05805556 7477.0949 14580.7517 96.8713\n");
-    printf(" OKD-5 8.8697 278.80944444 74.74055556 7474.2548 14589.4514 97.7433\n");
-    printf(" OKD-4 8.6045 285.91444444 54.38972222 7471.2970 14588.7117 98.7445\n");
-    printf(" OKD-11 3.8890 71.60250000 313.60777778\n");
-    printf(" OKD-12 3.8890 288.39138889 133.60805556\n");
+    fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
+    fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -h      this help\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "input-file(sample):\n");
+    fprintf(stderr, " OKD-4     -1     74.08666667   234.38916667  7471.2970  14588.7117  98.7445\n");
+    fprintf(stderr, " OKD-5     -1     81.18888889   254.73888889  7474.2548  14589.4514  97.7433\n");
+    fprintf(stderr, " OKD-K3-1  -1     82.43944444   339.05361111  7477.0949  14580.7517  96.8713\n");
+    fprintf(stderr, " OKD-K3-4  -1     70.66833333   161.16        7469.9723  14580.8231  97.6075\n");
+    fprintf(stderr, " OKD-K5P   -1     71.95527778   137.52222222  7469.9811  14579.3211  97.6057\n");
+    fprintf(stderr, " OKD-K7L   -1     83.96444444   17.82444444   7477.1099  14577.8330  96.8789\n");
+    fprintf(stderr, " OKD-K7L   -1     276.03361111  197.82722222  7477.1099  14577.8330  96.8789\n");
+    fprintf(stderr, " OKD-K5P   -1     288.04361111  317.52472222  7469.9811  14579.3211  97.6057\n");
+    fprintf(stderr, " OKD-K3-4  -1     289.32972222  341.16111111  7469.9723  14580.8231  97.6075\n");
+    fprintf(stderr, " OKD-K3-1  -1     277.55583333  159.05805556  7477.0949  14580.7517  96.8713\n");
+    fprintf(stderr, " OKD-5     -1     278.80944444  74.74055556   7474.2548  14589.4514  97.7433\n");
+    fprintf(stderr, " OKD-4     -1     285.91444444  54.38972222   7471.2970  14588.7117  98.7445\n");
+    fprintf(stderr, " OKD-11    3.889  71.6025       313.60777778\n");
+    fprintf(stderr, " OKD-12    3.889  288.39138889  133.60805556\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "report-file(sample):\n");
+    fprintf(stderr, " OKD-4 8.6045 74.08666667 234.38916667 7471.2970 14588.7117 98.7445\n");
+    fprintf(stderr, " OKD-5 8.8697 81.18888889 254.73888889 7474.2548 14589.4514 97.7433\n");
+    fprintf(stderr, " OKD-K3-1 3.6731 82.43944444 339.05361111 7477.0949 14580.7517 96.8713\n");
+    fprintf(stderr, " OKD-K3-4 3.6912 70.66833333 161.16000000 7469.9723 14580.8231 97.6075\n");
+    fprintf(stderr, " OKD-K5P 3.9388 71.95527778 137.52222222 7469.9811 14579.3211 97.6057\n");
+    fprintf(stderr, " OKD-K7L 4.6861 83.96444444 17.82444444 7477.1099 14577.8330 96.8789\n");
+    fprintf(stderr, " OKD-K7L 4.6861 276.03361111 197.82722222 7477.1099 14577.8330 96.8789\n");
+    fprintf(stderr, " OKD-K5P 3.9388 288.04361111 317.52472222 7469.9811 14579.3211 97.6057\n");
+    fprintf(stderr, " OKD-K3-4 3.6912 289.32972222 341.16111111 7469.9723 14580.8231 97.6075\n");
+    fprintf(stderr, " OKD-K3-1 3.6731 277.55583333 159.05805556 7477.0949 14580.7517 96.8713\n");
+    fprintf(stderr, " OKD-5 8.8697 278.80944444 74.74055556 7474.2548 14589.4514 97.7433\n");
+    fprintf(stderr, " OKD-4 8.6045 285.91444444 54.38972222 7471.2970 14588.7117 98.7445\n");
+    fprintf(stderr, " OKD-11 3.8890 71.60250000 313.60777778\n");
+    fprintf(stderr, " OKD-12 3.8890 288.39138889 133.60805556\n");
 }
 
 int main(int argc, char *argv[])
@@ -118,10 +118,10 @@ int main(int argc, char *argv[])
                 fhelp = 1;
                 break;
             case ':':
-                printf("option needs a value\n");
+                fprintf(stderr, "option needs a value\n");
                 break;
             case '?':
-                printf("unknown option: %c\n", optopt);
+                fprintf(stderr, "unknown option: %c\n", optopt);
                 break;
         }
     }
@@ -136,12 +136,12 @@ int main(int argc, char *argv[])
 
     if ((fp0 = fopen(argv[optind], "r")) == NULL)
     {
-        printf("can't open %s\n", argv[1]);
+        fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
     if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
     {
-        printf("can't create %s\n", argv[2]);
+        fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
     }
 

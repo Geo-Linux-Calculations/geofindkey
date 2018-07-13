@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 1.6
-Date: 2018-05-26
+Version: 1.7
+Date: 2018-07-13
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
@@ -43,55 +43,55 @@ var:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "1.6"
+#define PVERSION "1.7"
 
 void geofindkeytitle()
 {
-    printf("%s %s\n", PNAME, PVERSION);
+    fprintf(stderr, "%s %s\n", PNAME, PVERSION);
 }
 
 void geofindkeyusage()
 {
-    printf("usage: geofindkey [option] input-file report-file\n");
-    printf("options:\n");
-    printf("          -r      rescale mode (bool, optional, default = false)\n");
-    printf("          -s      station mode (bool, optional, default = false)\n");
-    printf("          -h      this help\n");
-    printf("\n");
-    printf("input-file(sample):\n");
-    printf(" 1 1334.71   285.94 66.29 83477.64 47377.60 216.28 1.0\n");
-    printf(" 2  563.67 -5197.34 60.21 82557.14 41916.51 210.21 1.0\n");
-    printf(" 3 4444.27  1153.79 67.76 86610.19 48160.39 217.77 1.0\n");
-    printf(" 4 -252.07  2881.90 65.41 81962.05 50016.34 215.42 1.0\n");
-    printf(" 5 1334.71   285.94 66.29\n");
-    printf(" 6  563.67 -5197.34 60.21\n");
-    printf(" 7 4444.27  1153.79 67.76\n");
-    printf(" 8 -252.07  2881.90 65.41\n");
-    printf("\n");
-    printf("report-file(sample):\n");
-    printf(" key:\n");
-    printf(" 82135.4073\n");
-    printf(" 47128.1437\n");
-    printf(" 150.0025\n");
-    printf(" 0.999787994227\n");
-    printf(" -0.027289778074\n");
-    printf(" 1.000531067446\n");
-    printf(" 1.000160369835\n");
-    printf(" -1.5635324426\n");
-    printf(" \n");
-    printf(" var:\n");
-    printf(" (Mode Normal)\n");
-    printf(" 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 +0.0024 +0.0008 -0.0132 -0.0002735462 -0.0000\n");
-    printf(" 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0165 -0.0132 +0.0000 +0.0002137624 +0.0093\n");
-    printf(" 3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 -0.0318 -0.0160 +0.0060 -0.0000341993 -0.0355\n");
-    printf(" 4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0129 +0.0283 +0.0072 -0.0003963128 +0.0189\n");
-    printf(" 5 1334.7100 285.9400 66.2900 83477.6376 47377.5992 216.2932\n");
-    printf(" 6 563.6700 -5197.3400 60.2100 82557.1235 41916.5232 210.2100\n");
-    printf(" 7 4444.2700 1153.7900 67.7600 86610.2218 48160.4060 217.7640\n");
-    printf(" 8 -252.0700 2881.9000 65.4100 81962.0371 50016.3117 215.4128\n");
-    printf(" \n");
-    printf(" diff:\n");
-    printf(" 0.0269 0.0248 0.0115 0.0003672639 0.0292\n");
+    fprintf(stderr, "usage: geofindkey [option] input-file report-file\n");
+    fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -r      rescale mode (bool, optional, default = false)\n");
+    fprintf(stderr, "          -s      station mode (bool, optional, default = false)\n");
+    fprintf(stderr, "          -h      this help\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "input-file(sample):\n");
+    fprintf(stderr, " 1 1334.71   285.94 66.29 83477.64 47377.60 216.28 1.0\n");
+    fprintf(stderr, " 2  563.67 -5197.34 60.21 82557.14 41916.51 210.21 1.0\n");
+    fprintf(stderr, " 3 4444.27  1153.79 67.76 86610.19 48160.39 217.77 1.0\n");
+    fprintf(stderr, " 4 -252.07  2881.90 65.41 81962.05 50016.34 215.42 1.0\n");
+    fprintf(stderr, " 5 1334.71   285.94 66.29\n");
+    fprintf(stderr, " 6  563.67 -5197.34 60.21\n");
+    fprintf(stderr, " 7 4444.27  1153.79 67.76\n");
+    fprintf(stderr, " 8 -252.07  2881.90 65.41\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "report-file(sample):\n");
+    fprintf(stderr, " key:\n");
+    fprintf(stderr, " 82135.4073\n");
+    fprintf(stderr, " 47128.1437\n");
+    fprintf(stderr, " 150.0025\n");
+    fprintf(stderr, " 0.999787994227\n");
+    fprintf(stderr, " -0.027289778074\n");
+    fprintf(stderr, " 1.000531067446\n");
+    fprintf(stderr, " 1.000160369835\n");
+    fprintf(stderr, " -1.5635324426\n");
+    fprintf(stderr, " \n");
+    fprintf(stderr, " var:\n");
+    fprintf(stderr, " (Mode Normal)\n");
+    fprintf(stderr, " 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 +0.0024 +0.0008 -0.0132 -0.0002735462 -0.0000\n");
+    fprintf(stderr, " 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0165 -0.0132 +0.0000 +0.0002137624 +0.0093\n");
+    fprintf(stderr, " 3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 -0.0318 -0.0160 +0.0060 -0.0000341993 -0.0355\n");
+    fprintf(stderr, " 4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0129 +0.0283 +0.0072 -0.0003963128 +0.0189\n");
+    fprintf(stderr, " 5 1334.7100 285.9400 66.2900 83477.6376 47377.5992 216.2932\n");
+    fprintf(stderr, " 6 563.6700 -5197.3400 60.2100 82557.1235 41916.5232 210.2100\n");
+    fprintf(stderr, " 7 4444.2700 1153.7900 67.7600 86610.2218 48160.4060 217.7640\n");
+    fprintf(stderr, " 8 -252.0700 2881.9000 65.4100 81962.0371 50016.3117 215.4128\n");
+    fprintf(stderr, " \n");
+    fprintf(stderr, " diff:\n");
+    fprintf(stderr, " 0.0269 0.0248 0.0115 0.0003672639 0.0292\n");
 }
 
 int main(int argc, char *argv[])
@@ -123,10 +123,10 @@ int main(int argc, char *argv[])
                 fhelp = 1;
                 break;
             case ':':
-                printf("option needs a value\n");
+                fprintf(stderr, "option needs a value\n");
                 break;
             case '?':
-                printf("unknown option: %c\n", optopt);
+                fprintf(stderr, "unknown option: %c\n", optopt);
                 break;
         }
     }
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
     if ((fp0 = fopen(argv[optind], "r")) == NULL)
     {
-        printf("can't open %s\n", argv[1]);
+        fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
     /* вывести параметры в файл ключа */
     if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
     {
-        printf("can't create %s\n", argv[2]);
+        fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
     }
     fprintf(fp1, "key:\n");
