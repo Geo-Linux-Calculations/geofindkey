@@ -21,13 +21,13 @@ clean:
 	rm -f $(PROGS)
 
 $(PROGNAME1): $(SRCS)/$(PROGNAME1).c
-	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
+	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(PROGNAME2): $(SRCS)/$(PROGNAME2).c
-	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
+	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(PROGNAME3): $(SRCS)/$(PROGNAME3).c
-	$(CPP) $(CFLAGS) $(LIBS) $^ -o $@
+	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 install: $(PROGS)
 	$(INSTALL) -d $(PREFIX)/bin
