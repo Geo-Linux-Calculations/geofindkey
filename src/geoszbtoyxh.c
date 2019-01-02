@@ -10,7 +10,8 @@ sample:
 $ ./geoszbtoyxh doc/szb.dat yxh.dat
 *
 file:
-input file doc/szb.dat:
+input file point_id slope_distance zenith_angle bearing
+doc/szb.dat:
 *
 OKD-4     8.605  74.08666667   234.38916667
 OKD-5     8.869  81.18888889   254.73888889
@@ -100,65 +101,85 @@ void geoszbtoyxhusage()
 
 int main(int argc, char *argv[])
 {
-    char buf[1024], name[32];
+    char buf[1024], name[32], format4[128], format7[128];
     double x[3], y[3], z[3];
     int np;
     FILE *fp0, *fp1;
 
     int opt;
-    int fhelp = 0;
-    while ((opt = getopt(argc, argv, ":h")) != -1)
+    int fhelp = 0;	/* default no help*/
+	int decimals = 4;	/* number of decimals in the calculated coordinates */
+	double d2r = M_PI / 180.0;	/* degree to radians factor */
+    while ((opt = getopt(argc, argv, "d:h")) != -1)
     {
         switch(opt)
         {
             case 'h':
                 fhelp = 1;
                 break;
+			case 'd':
+				decimals = atoi(optarg);
+				break;
             case ':':
                 fprintf(stderr, "option needs a value\n");
+				fhelp = 1;
                 break;
             case '?':
                 fprintf(stderr, "unknown option: %c\n", optopt);
+				fhelp = 1;
                 break;
         }
     }
 
+	sprintf(format4, "%%s %%.%df %%.%df %%.%df\n",
+		decimals, decimals, decimals);
+    sprintf(format7, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df 1\n",
+		decimals, decimals, decimals, decimals, decimals, decimals);
     geoszbtoyxhtitle();
 
-    if ((optind + 2 > argc) || (fhelp > 0))
+    if (fhelp)
     {
         geoszbtoyxhusage();
         exit(0);
     }
 
-    if ((fp0 = fopen(argv[optind], "r")) == NULL)
-    {
-        fprintf(stderr, "can't open %s\n", argv[1]);
-        exit(EXIT_FAILURE);
+	if (argc > optind)
+	{
+		if ((fp0 = fopen(argv[optind], "r")) == NULL)
+    	{
+			fprintf(stderr, "can't open %s\n", argv[1]);
+			exit(EXIT_FAILURE);
+		}
+	} else {
+		fp0 = stdin;	/* use standard input if no file given */
     }
-    if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
-    {
-        fprintf(stderr, "can't create %s\n", argv[2]);
-        exit(EXIT_FAILURE);
-    }
+	if (argc > optind+1)
+	{
+		if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+		{
+			fprintf(stderr, "can't create %s\n", argv[2]);
+			exit(EXIT_FAILURE);
+		}
+	} else {
+		fp1 = stdout;	/* use standard output if no file given */
+	}
 
     while (fgets(buf, 1024, fp0) != NULL)
     {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
+        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
+			name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
         x[1] = 90 - x[1];;
-        x[1] *= M_PI;
-        x[1] /= 180.0;
-        x[2] *= M_PI;
-        x[2] /= 180.0;
+        x[1] *= d2r;
+        x[2] *= d2r;
         y[2] = x[0] * sin(x[1]);
         x[0] *= cos(x[1]);
         y[0] = x[0] * sin(x[2]);
         y[1] = x[0] * cos(x[2]);
         if (np >= 7)
         {
-            fprintf(fp1, "%s %.4f %.4f %.4f %.4f %.4f %.4f 1\n", name, y[0], y[1], y[2], z[0], z[1], z[2]);
+            fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
         } else {
-            fprintf(fp1, "%s %.4f %.4f %.4f\n", name, y[0], y[1], y[2]);
+            fprintf(fp1, format4, name, y[0], y[1], y[2]);
         }
     }
     fclose(fp1);

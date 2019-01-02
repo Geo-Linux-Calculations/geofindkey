@@ -1,4 +1,4 @@
-.TH "GeoFindKey User Manual" 1.6 "26 May 2018" "GeoFindKey documentation"
+.TH "man 1" 1.6 "26 May 2018" "geoszbtoyxh man page"
 
 .SH NAME
 geoszbtoyxh
@@ -7,16 +7,19 @@ geoszbtoyxh
 Geodesic S-Z-B to Y-X-H convert.
 
 .SH SYNOPSIS
-geoszbtoyxh [option] input-file report-file
+geoszbtoyxh [options] [input-file [report-file]]
 
 .SH OPTIONS
 .TP
 -h
 help
+.TP
+-d n
+number of decimals in the result coordinates, default 4
 
 .SH FILES
 .TP
-input-file
+input-file optional, default stdin
 (sample):
  OKD-4     8.605  74.08666667   234.38916667  7471.2970  14588.7117  98.7445
  OKD-5     8.869  81.18888889   254.73888889  7474.2548  14589.4514  97.7433
@@ -33,7 +36,7 @@ input-file
  OKD-11    3.889  71.6025       313.60777778
  OKD-12    3.889  288.39138889  133.60805556
 .TP
-report-file
+report-file optional, default stdout
 (sample):
  OKD-4 -6.7277 -4.8185 2.3593 7471.2970 14588.7117 98.7445 1
  OKD-5 -8.4553 -2.3069 1.3585 7474.2548 14589.4514 97.7433 1
