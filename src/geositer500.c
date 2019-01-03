@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
 Version: 1.7
-Date: 2018-07-13
+Date: 2019-01-03
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -54,6 +54,8 @@ OKD-12 3.8890 288.39138889 133.60805556
 #define PNAME "GeoSIter500"
 #define PVERSION "1.7"
 
+#define defUnits "DEG"
+
 void geositer500title()
 {
     fprintf(stderr, "%s %s\n", PNAME, PVERSION);
@@ -63,6 +65,7 @@ void geositer500usage()
 {
     fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -98,6 +101,40 @@ void geositer500usage()
     fprintf(stderr, " OKD-12 3.8890 288.39138889 133.60805556\n");
 }
 
+double DEGtoRAD(double val)
+{
+    double d2r = M_PI / 180.0;  /* degree to radians factor */
+    val *= d2r;
+    return val;
+}
+double GONtoRAD(double val)
+{
+    double g2r = M_PI / 200.0;  /* gon to radians factor */
+    val *= g2r;
+    return val;
+}
+double DMStoDEG(double val)
+{
+    double D, M, S;
+    D = (int)val;
+    M = (int)((val - D) * 100.0);
+    S = ((val - D) * 100.0 - M) * 100.0;
+    val = D + (M + S / 60.0) / 60.0;
+    return val;
+}
+double ANGLEtoRAD(double val, char* units)
+{
+    if (!strcmp(units,"RAD"))
+        return val;
+    if (!strcmp(units,"DEG"))
+        return DEGtoRAD(val);
+    if (!strcmp(units,"DMS"))
+        return DEGtoRAD(DMStoDEG(val));
+    if (!strcmp(units,"GON"))
+        return GONtoRAD(val);
+    return val;
+}
+
 int main(int argc, char *argv[])
 {
     char buf[1024], name[32];
@@ -105,17 +142,23 @@ int main(int argc, char *argv[])
     double yc[3], zc[3];
     double siter[500], st, ds, sds;
     unsigned n, i, j, k;
+    char* units;
     int np;
     FILE *fp0, *fp1;
 
     int opt;
+    double PI2 = M_PI / 2.0;  /* PI/2 */
+    units = defUnits;
     int fhelp = 0;
-    while ((opt = getopt(argc, argv, ":h")) != -1)
+    while ((opt = getopt(argc, argv, "u:h")) != -1)
     {
         switch(opt)
         {
             case 'h':
                 fhelp = 1;
+                break;
+            case 'u':
+                units = optarg;
                 break;
             case ':':
                 fprintf(stderr, "option needs a value\n");
@@ -185,11 +228,9 @@ int main(int argc, char *argv[])
                     x[0] = siter[j];
                     j++;
                 }
-                x[1] = 90 - x[1];;
-                x[1] *= M_PI;
-                x[1] /= 180.0;
-                x[2] *= M_PI;
-                x[2] /= 180.0;
+                x[1] = ANGLEtoRAD(x[1], units);
+                x[1] = PI2 - x[1];;
+                x[2] = ANGLEtoRAD(x[2], units);
                 y[2] = x[0] * sin(x[1]);
                 x[0] *= cos(x[1]);
                 y[0] = x[0] * sin(x[2]);
@@ -224,11 +265,9 @@ int main(int argc, char *argv[])
                     x[0] = siter[j];
                     j++;
                 }
-                x[1] = 90 - x[1];;
-                x[1] *= M_PI;
-                x[1] /= 180.0;
-                x[2] *= M_PI;
-                x[2] /= 180.0;
+                x[1] = ANGLEtoRAD(x[1], units);
+                x[1] = PI2 - x[1];;
+                x[2] = ANGLEtoRAD(x[2], units);
                 y[2] = x[0] * sin(x[1]);
                 x[0] *= cos(x[1]);
                 y[0] = x[0] * sin(x[2]);

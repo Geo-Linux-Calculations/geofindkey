@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
 Version: 1.7
-Date: 2018-07-13
+Date: 2019-01-03
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -55,6 +55,8 @@ OKD-12 -2.6721 2.5453 1.2270
 #define PNAME "GeoSZBtoYXH"
 #define PVERSION "1.7"
 
+#define defUnits "DEG"
+
 void geoszbtoyxhtitle()
 {
     fprintf(stderr, "%s %s\n", PNAME, PVERSION);
@@ -62,8 +64,10 @@ void geoszbtoyxhtitle()
 
 void geoszbtoyxhusage()
 {
-    fprintf(stderr, "usage: geoszbtoyxh [option] input-file report-file\n");
+    fprintf(stderr, "usage: geoszbtoyxh [option] [input-file [report-file]]\n");
     fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
+    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -99,42 +103,81 @@ void geoszbtoyxhusage()
     fprintf(stderr, " OKD-12 -2.6721 2.5453 1.2270\n");
 }
 
+double DEGtoRAD(double val)
+{
+    double d2r = M_PI / 180.0;  /* degree to radians factor */
+    val *= d2r;
+    return val;
+}
+double GONtoRAD(double val)
+{
+    double g2r = M_PI / 200.0;  /* degree to radians factor */
+    val *= g2r;
+    return val;
+}
+double DMStoDEG(double val)
+{
+    double D, M, S;
+    D = (int)val;
+    M = (int)((val - D) * 100.0);
+    S = ((val - D) * 100.0 - M) * 100.0;
+    val = D + (M + S / 60.0) / 60.0;
+    return val;
+}
+double ANGLEtoRAD(double val, char* units)
+{
+    if (!strcmp(units,"RAD"))
+        return val;
+    if (!strcmp(units,"DEG"))
+        return DEGtoRAD(val);
+    if (!strcmp(units,"DMS"))
+        return DEGtoRAD(DMStoDEG(val));
+    if (!strcmp(units,"GON"))
+        return GONtoRAD(val);
+    return val;
+}
+
 int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format4[128], format7[128];
     double x[3], y[3], z[3];
+    char* units;
     int np;
     FILE *fp0, *fp1;
 
     int opt;
-    int fhelp = 0;	/* default no help*/
-	int decimals = 4;	/* number of decimals in the calculated coordinates */
-	double d2r = M_PI / 180.0;	/* degree to radians factor */
-    while ((opt = getopt(argc, argv, "d:h")) != -1)
+    int fhelp = 0;  /* default no help*/
+    int decimals = 4;   /* number of decimals in the calculated coordinates */
+    double PI2 = M_PI / 2.0;  /* PI/2 */
+    units = defUnits;
+    while ((opt = getopt(argc, argv, "d:u:h")) != -1)
     {
         switch(opt)
         {
             case 'h':
                 fhelp = 1;
                 break;
-			case 'd':
-				decimals = atoi(optarg);
-				break;
+            case 'd':
+                decimals = atoi(optarg);
+                break;
+            case 'u':
+                units = optarg;
+                break;
             case ':':
                 fprintf(stderr, "option needs a value\n");
-				fhelp = 1;
+                fhelp = 1;
                 break;
             case '?':
                 fprintf(stderr, "unknown option: %c\n", optopt);
-				fhelp = 1;
+                fhelp = 1;
                 break;
         }
     }
 
-	sprintf(format4, "%%s %%.%df %%.%df %%.%df\n",
-		decimals, decimals, decimals);
+    sprintf(format4, "%%s %%.%df %%.%df %%.%df\n",
+        decimals, decimals, decimals);
     sprintf(format7, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df 1\n",
-		decimals, decimals, decimals, decimals, decimals, decimals);
+        decimals, decimals, decimals, decimals, decimals, decimals);
     geoszbtoyxhtitle();
 
     if (fhelp)
@@ -143,34 +186,34 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-	if (argc > optind)
-	{
-		if ((fp0 = fopen(argv[optind], "r")) == NULL)
-    	{
-			fprintf(stderr, "can't open %s\n", argv[1]);
-			exit(EXIT_FAILURE);
-		}
-	} else {
-		fp0 = stdin;	/* use standard input if no file given */
+    if (argc > optind)
+    {
+        if ((fp0 = fopen(argv[optind], "r")) == NULL)
+        {
+            fprintf(stderr, "can't open %s\n", argv[1]);
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        fp0 = stdin;    /* use standard input if no file given */
     }
-	if (argc > optind+1)
-	{
-		if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
-		{
-			fprintf(stderr, "can't create %s\n", argv[2]);
-			exit(EXIT_FAILURE);
-		}
-	} else {
-		fp1 = stdout;	/* use standard output if no file given */
-	}
+    if (argc > optind+1)
+    {
+        if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+        {
+            fprintf(stderr, "can't create %s\n", argv[2]);
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        fp1 = stdout;   /* use standard output if no file given */
+    }
 
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
-			name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-        x[1] = 90 - x[1];;
-        x[1] *= d2r;
-        x[2] *= d2r;
+            name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
+        x[1] = ANGLEtoRAD(x[1], units);
+        x[1] = PI2 - x[1];;
+        x[2] = ANGLEtoRAD(x[2], units);
         y[2] = x[0] * sin(x[1]);
         x[0] *= cos(x[1]);
         y[0] = x[0] * sin(x[2]);
