@@ -50,6 +50,7 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PNAME "GeoSIter500"
 #define PVERSION "1.7"
@@ -65,6 +66,7 @@ void geositer500usage()
 {
     fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
     fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
@@ -103,13 +105,13 @@ void geositer500usage()
 
 double DEGtoRAD(double val)
 {
-    double d2r = M_PI / 180.0;  /* degree to radians factor */
+    static double d2r = M_PI / 180.0;  /* degree to radians factor */
     val *= d2r;
     return val;
 }
 double GONtoRAD(double val)
 {
-    double g2r = M_PI / 200.0;  /* gon to radians factor */
+    static double g2r = M_PI / 200.0;  /* gon to radians factor */
     val *= g2r;
     return val;
 }
@@ -137,7 +139,7 @@ double ANGLEtoRAD(double val, char* units)
 
 int main(int argc, char *argv[])
 {
-    char buf[1024], name[32];
+    char buf[1024], name[32], format4[128], format7[128];
     double x[3], y[3], z[3], dy[3], dz[3], s[6], a[2];
     double yc[3], zc[3];
     double siter[500], st, ds, sds;
@@ -148,14 +150,18 @@ int main(int argc, char *argv[])
 
     int opt;
     double PI2 = M_PI / 2.0;  /* PI/2 */
-    units = defUnits;
+    int decimals = 4;   /* number of decimals in the calculated coordinates */
     int fhelp = 0;
-    while ((opt = getopt(argc, argv, "u:h")) != -1)
+    units = defUnits;
+    while ((opt = getopt(argc, argv, "d:u:h")) != -1)
     {
         switch(opt)
         {
             case 'h':
                 fhelp = 1;
+                break;
+            case 'd':
+                decimals = atoi(optarg);
                 break;
             case 'u':
                 units = optarg;
@@ -169,6 +175,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    sprintf(format4, "%%s %%.%df %%.8f %%.8f\n",
+        decimals);
+    sprintf(format7, "%%s %%.%df %%.8f %%.8f %%.%df %%.%df %%.%df\n",
+        decimals, decimals, decimals, decimals);
     geositer500title();
 
     if ((optind + 2 > argc) || (fhelp > 0))
@@ -335,16 +345,22 @@ int main(int argc, char *argv[])
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-        if (np >= 7)
-        {
-            if (x[0] < 0)
+        if (np >= 4) {
+            if (np >= 7)
             {
-                x[0] = siter[j];
-                j++;
+                if (x[0] < 0)
+                {
+                    x[0] = siter[j];
+                    j++;
+                }
+                fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+            } else {
+                fprintf(fp1, format4, name, x[0], x[1], x[2]);
             }
-            fprintf(fp1, "%s %.4f %.8f %.8f %.4f %.4f %.4f\n", name, x[0], x[1], x[2], z[0], z[1], z[2]);
         } else {
-            fprintf(fp1, "%s %.4f %.8f %.8f\n", name, x[0], x[1], x[2]);
+            if (np > 0) {       /* no error for empty lines */
+                fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+            }
         }
     }
     fclose(fp1);

@@ -112,7 +112,7 @@ double DEGtoRAD(double val)
 }
 double GONtoRAD(double val)
 {
-    static double g2r = M_PI / 200.0;  /* degree to radians factor */
+    static double g2r = M_PI / 200.0;  /* gon to radians factor */
     val *= g2r;
     return val;
 }
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
     FILE *fp0, *fp1;
 
     int opt;
-    int fhelp = 0;  /* default no help*/
     int decimals = 4;   /* number of decimals in the calculated coordinates */
     double PI2 = M_PI / 2.0;  /* PI/2 */
+    int fhelp = 0;  /* default no help*/
     units = defUnits;
     while ((opt = getopt(argc, argv, "d:u:h")) != -1)
     {
@@ -212,25 +212,25 @@ int main(int argc, char *argv[])
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
             name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-		if (np >= 4) {
-			x[1] = ANGLEtoRAD(x[1], units);
-			x[1] = PI2 - x[1];;
-			x[2] = ANGLEtoRAD(x[2], units);
-			y[2] = x[0] * sin(x[1]);
-			x[0] *= cos(x[1]);
-			y[0] = x[0] * sin(x[2]);
-			y[1] = x[0] * cos(x[2]);
-			if (np >= 7)
-			{
-				fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
-			} else {
-				fprintf(fp1, format4, name, y[0], y[1], y[2]);
-			}
-		} else {
-			if (np > 0) {		/* no error for empty lines */
-				fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
-			}
-		}
+        if (np >= 4) {
+            x[1] = ANGLEtoRAD(x[1], units);
+            x[1] = PI2 - x[1];;
+            x[2] = ANGLEtoRAD(x[2], units);
+            y[2] = x[0] * sin(x[1]);
+            x[0] *= cos(x[1]);
+            y[0] = x[0] * sin(x[2]);
+            y[1] = x[0] * cos(x[2]);
+            if (np >= 7)
+            {
+                fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
+            } else {
+                fprintf(fp1, format4, name, y[0], y[1], y[2]);
+            }
+        } else {
+            if (np > 0) {       /* no error for empty lines */
+                fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+            }
+        }
     }
     fclose(fp1);
     fclose(fp0);
