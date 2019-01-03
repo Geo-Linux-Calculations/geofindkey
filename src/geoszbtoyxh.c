@@ -51,6 +51,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PNAME "GeoSZBtoYXH"
 #define PVERSION "1.7"
@@ -105,13 +106,13 @@ void geoszbtoyxhusage()
 
 double DEGtoRAD(double val)
 {
-    double d2r = M_PI / 180.0;  /* degree to radians factor */
+    static double d2r = M_PI / 180.0;  /* degree to radians factor */
     val *= d2r;
     return val;
 }
 double GONtoRAD(double val)
 {
-    double g2r = M_PI / 200.0;  /* degree to radians factor */
+    static double g2r = M_PI / 200.0;  /* degree to radians factor */
     val *= g2r;
     return val;
 }
@@ -211,19 +212,25 @@ int main(int argc, char *argv[])
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
             name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-        x[1] = ANGLEtoRAD(x[1], units);
-        x[1] = PI2 - x[1];;
-        x[2] = ANGLEtoRAD(x[2], units);
-        y[2] = x[0] * sin(x[1]);
-        x[0] *= cos(x[1]);
-        y[0] = x[0] * sin(x[2]);
-        y[1] = x[0] * cos(x[2]);
-        if (np >= 7)
-        {
-            fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
-        } else {
-            fprintf(fp1, format4, name, y[0], y[1], y[2]);
-        }
+		if (np >= 4) {
+			x[1] = ANGLEtoRAD(x[1], units);
+			x[1] = PI2 - x[1];;
+			x[2] = ANGLEtoRAD(x[2], units);
+			y[2] = x[0] * sin(x[1]);
+			x[0] *= cos(x[1]);
+			y[0] = x[0] * sin(x[2]);
+			y[1] = x[0] * cos(x[2]);
+			if (np >= 7)
+			{
+				fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
+			} else {
+				fprintf(fp1, format4, name, y[0], y[1], y[2]);
+			}
+		} else {
+			if (np > 0) {		/* no error for empty lines */
+				fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+			}
+		}
     }
     fclose(fp1);
     fclose(fp0);
