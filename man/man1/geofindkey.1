@@ -1,4 +1,4 @@
-.TH "GeoFindKey User Manual" 1.6 "26 May 2018" "GeoFindKey documentation"
+.TH "man 1" 1.8 "4 Jan 2019" "geofindkey man page"
 
 .SH NAME
 geofindkey
@@ -10,6 +10,9 @@ Conformal transformation.
 geofindkey [option] input-file report-file
 
 .SH OPTIONS
+.TP
+-d N
+number of decimals in the result coordinates, default 4
 .TP
 -r
 rescale mode (bool, optional, default = false)
@@ -60,7 +63,7 @@ report-file
  0.0269 0.0248 0.0115 0.0003672639 0.0292
 
 .SH EXAMPLE
-geofindkey ../doc/data.dat report.dat
+geofindkey doc/data.dat report.dat
 
 .SH COPYRIGHT
 Copyright 2018 zvezdochiot.

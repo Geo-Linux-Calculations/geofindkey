@@ -1,6 +1,6 @@
 /*
 Name: geoszbtoyxh.c
-Version: 1.7
+Version: 1.8
 Date: 2019-01-03
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
@@ -54,7 +54,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <string.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "1.7"
+#define PVERSION "1.8"
 
 #define defUnits "DEG"
 

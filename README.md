@@ -17,7 +17,7 @@ The procedure for compiling is:
 
 GeoFindKey:
 
-Input Data ../doc/data.dat:
+Input Data doc/data.dat:
 
     1 1334.71   285.94 66.29 83477.64 47377.60 216.28 1.0
     2  563.67 -5197.34 60.21 82557.14 41916.51 210.21 1.0
@@ -30,7 +30,7 @@ Input Data ../doc/data.dat:
 
 Mode Normal:
 
-    ./geofindkey ../doc/data.dat report.dat
+    ./geofindkey doc/data.dat report.dat
 
 Result report.dat:
 
@@ -60,7 +60,7 @@ Result report.dat:
 
 Mode Rescale:
 
-    ./geofindkey -r ../doc/data.dat report.dat
+    ./geofindkey -r doc/data.dat report.dat
 
 Result report.dat:
 
@@ -90,7 +90,7 @@ Result report.dat:
 
 Mode Station Rescale:
 
-    ./geofindkey -r -s ../doc/data.dat report.dat
+    ./geofindkey -r -s doc/data.dat report.dat
 
 Result report.dat:
 
@@ -120,7 +120,7 @@ Result report.dat:
 
 S-Z-B to Y-X-H conert:
 
-Input Data ../doc/szb.dat:
+Input Data doc/szb.dat:
 
     OKD-4     8.605  74.08666667   234.38916667  7471.2970  14588.7117  98.7445
     OKD-5     8.869  81.18888889   254.73888889  7474.2548  14589.4514  97.7433
@@ -139,7 +139,7 @@ Input Data ../doc/szb.dat:
 
 Exec convert:
 
-    ./geoszbtoyxh ../doc/szb.dat yxh.dat
+    ./geoszbtoyxh doc/szb.dat yxh.dat
 
 Result yxh.dat:
 
@@ -160,7 +160,7 @@ Result yxh.dat:
 
 SIter (estimation of unknown distances):
 
-Input Data ../doc/szbunknow.dat:
+Input Data doc/szbunknow.dat:
 
     OKD-4     -1     74.08666667   234.38916667  7471.2970  14588.7117  98.7445
     OKD-5     -1     81.18888889   254.73888889  7474.2548  14589.4514  97.7433
@@ -179,7 +179,7 @@ Input Data ../doc/szbunknow.dat:
 
 Exec convert:
 
-    ./geositer500 ../doc/szbunknow.dat szb.dat
+    ./geositer500 doc/szbunknow.dat szb.dat
 
 Result sbz.dat:
 
@@ -198,4 +198,4 @@ Result sbz.dat:
     OKD-11 3.8890 71.60250000 313.60777778
     OKD-12 3.8890 288.39138889 133.60805556
 
-https://github.com/zvezdochiot/geofindkey
+https://github.com/Geo-Linux-Calculations/geofindkey

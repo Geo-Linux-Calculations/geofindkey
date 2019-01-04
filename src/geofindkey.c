@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 1.7
-Date: 2018-07-13
+Version: 1.8
+Date: 2019-01-04
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
@@ -43,7 +43,7 @@ var:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "1.7"
+#define PVERSION "1.8"
 
 void geofindkeytitle()
 {
@@ -54,6 +54,7 @@ void geofindkeyusage()
 {
     fprintf(stderr, "usage: geofindkey [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
     fprintf(stderr, "          -r      rescale mode (bool, optional, default = false)\n");
     fprintf(stderr, "          -s      station mode (bool, optional, default = false)\n");
     fprintf(stderr, "          -h      this help\n");
@@ -96,7 +97,7 @@ void geofindkeyusage()
 
 int main(int argc, char *argv[])
 {
-    char buf[1024], name[32];
+    char buf[1024], name[32], format5[128], format7[128], format13[128];
     double x[3], y[3], wgt, n;
     double xc[3], yc[3];
     double dx[3], dy[3], dz[3], vdz[3];
@@ -106,13 +107,17 @@ int main(int argc, char *argv[])
     FILE *fp0, *fp1;
 
     int opt;
+    int decimals = 4;   /* number of decimals in the calculated coordinates */
     int fstation = 0;
     int frescale = 0;
     int fhelp = 0;
-    while ((opt = getopt(argc, argv, ":rsh")) != -1)
+    while ((opt = getopt(argc, argv, "d:rsh")) != -1)
     {
         switch(opt)
         {
+            case 'd':
+                decimals = atoi(optarg);
+                break;
             case 'r':
                 frescale = 1;
                 break;
@@ -131,6 +136,12 @@ int main(int argc, char *argv[])
         }
     }
 
+    sprintf(format5, "%%.%df %%.%df %%.%df %%.10f %%.%df\n",
+        decimals, decimals, decimals, decimals);
+    sprintf(format7, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df\n",
+        decimals, decimals, decimals, decimals, decimals, decimals);
+    sprintf(format13, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df %%g %%+.%df %%+.%df %%+.%df %%.10f %%+.%df\n",
+        decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals);
     geofindkeytitle();
 
     if ((optind + 2 > argc) || (fhelp > 0))
@@ -289,43 +300,50 @@ int main(int argc, char *argv[])
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        /* "наблюдённые" dx[], dy[] */
-        dx[0] = x[0] - xc[0];
-        dx[1] = x[1] - xc[1];
-        dx[2] = x[2] - xc[2];
-        /* "вычисленные" dy[] */
-        dz[0] = a[1][0] * dx[0] - a[1][1] * dx[1];
-        dz[1] = a[1][1] * dx[0] + a[1][0] * dx[1];
-        dz[2] = a[1][2] * dx[2];
-        az = atan2(dz[1], dz[0]);
-        saz = hypot(dz[0], dz[1]);
-        if (np >= 8)
+        if (np >= 4)
         {
-            for (i = 0; i < 3; i++)
+            /* "наблюдённые" dx[], dy[] */
+            dx[0] = x[0] - xc[0];
+            dx[1] = x[1] - xc[1];
+            dx[2] = x[2] - xc[2];
+            /* "вычисленные" dy[] */
+            dz[0] = a[1][0] * dx[0] - a[1][1] * dx[1];
+            dz[1] = a[1][1] * dx[0] + a[1][0] * dx[1];
+            dz[2] = a[1][2] * dx[2];
+            az = atan2(dz[1], dz[0]);
+            saz = hypot(dz[0], dz[1]);
+            if (np >= 8)
             {
-                dy[i] = y[i] - yc[i];
-                vdz[i] = dy[i] - dz[i];
-                s[i] += vdz[i] * vdz[i] * wgt;
+                for (i = 0; i < 3; i++)
+                {
+                    dy[i] = y[i] - yc[i];
+                    vdz[i] = dy[i] - dz[i];
+                    s[i] += vdz[i] * vdz[i] * wgt;
+                }
+                say = hypot(dy[0], dy[1]);
+                ds = say - saz;
+                s[3] += ds * ds * wgt;
+                s[5] += wgt;
+                ay = atan2(dy[1], dy[0]);
+                da = ay - az;
+                da *= 180. / M_PI;
+                if (da > 180) {da -= 360;}
+                if (da < -180) {da += 360;}
+                s[4] += da * da * say * wgt;
+                s[6] += say * wgt;
+                fprintf(fp1, format13, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, vdz[0], vdz[1], vdz[2], da, ds);
+            } else {
+                for (i = 0; i < 3; i++)
+                {
+                    dy[i] = dz[i];
+                    y[i] = yc[i] + dy[i];
+                }
+                fprintf(fp1, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
             }
-            say = hypot(dy[0], dy[1]);
-            ds = say - saz;
-            s[3] += ds * ds * wgt;
-            s[5] += wgt;
-            ay = atan2(dy[1], dy[0]);
-            da = ay - az;
-            da *= 180. / M_PI;
-            if (da > 180) {da -= 360;}
-            if (da < -180) {da += 360;}
-            s[4] += da * da * say * wgt;
-            s[6] += say * wgt;
-            fprintf(fp1, "%s %.4f %.4f %.4f %.4f %.4f %.4f %g %+.4f %+.4f %+.4f %+.10f %+.4f\n", name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, vdz[0], vdz[1], vdz[2], da, ds);
         } else {
-            for (i = 0; i < 3; i++)
-            {
-                dy[i] = dz[i];
-                y[i] = yc[i] + dy[i];
+            if (np > 0) {       /* no error for empty lines */
+                fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
             }
-            fprintf(fp1, "%s %.4f %.4f %.4f %.4f %.4f %.4f\n", name, x[0], x[1], x[2], y[0], y[1], y[2]);
         }
     }
     if (s[5] != 0)
@@ -351,7 +369,7 @@ int main(int argc, char *argv[])
     }
     fprintf(fp1, "\n");
     fprintf(fp1, "diff:\n");
-    fprintf(fp1, "%.4f %.4f %.4f %.10f %.4f \n", s[0], s[1], s[2], s[4], s[3]);
+    fprintf(fp1, format5, s[0], s[1], s[2], s[4], s[3]);
     fclose(fp1);
     fclose(fp0);
 
