@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg style="vertical-align:-0.838ex" xmlns="http://www.w3.org/2000/svg" focusable="false" height="2.843ex" width="18.006ex" role="img" aria-labelledby="MathJax-SVG-1-Title" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 -863.1 7752.6 1223.9">
+ <title id="MathJax-SVG-1-Title">{\displaystyle \langle u,v\rangle =\langle Tu,Tv\rangle \,.}</title>
+ <defs aria-hidden="true">
+  <path id="E1-MJMAIN-27E8" d="m333-232q-1-7-6-12t-14-6q-10 0-17 10-3 7-94 246t-92 244 91 244 95 246q3 5 10 9l3 1q3 0 4 0 18 0 20-18 0-5-90-243-91-237-91-239t91-239q90-238 90-243z"/>
+  <path id="E1-MJMATHI-75" d="m21 287q0 8 9 31t25 52 44 50 59 22q46 0 69-25t23-59q0-18-34-112t-34-141q0-43 14-60t42-18 53 17 37 34l11 17q2 4 38 152 30 120 36 140t14 29q17 15 36 15 17 0 25-10t8-19l-76-318q-1-5-1-16 0-25 7-33t21-9q22 3 35 31t30 88q2 8 20 8 19 0 19-9-1-5-2-14t-9-32-17-43-25-38-36-25q-8-2-24-2-66 0-91 56-2-1-11-10t-18-15-22-15-29-12-34-5q-44 0-78 18-52 31-52 106 0 57 35 149t35 117q0 1 0 2 0 9 0 12t-4 7-11 4h-4q-23 0-42-19t-30-41-17-42-8-22q-2-2-16-2h-14q-6 6-6 9z"/>
+  <path id="E1-MJMAIN-2C" d="m78 35t0 25 16 43 43 18q28 0 50-25t23-88q0-35-9-68t-21-57-26-41-24-27-13-9q-4 0-13 9t-9 13q0 4 11 16t25 30 26 50 16 73v12l-1-1q-2-1-5-2t-6-3-9-2-12-1q-27 0-44 17z"/>
+  <path id="E1-MJMATHI-76" d="m173 380q0 25-19 25-24 0-50-29t-43-89q-1-1-2-3t-1-3-2-2-3-1-4 0-8 0h-14q-6 6-6 9 0 7 8 29t24 52 44 51 63 22q42 0 65-24t24-56q0-17-3-26 0-6-15-44t-31-89-18-89q0-27 5-44 13-43 63-43 37 0 69 34t50 79 29 83 11 55q0 23-8 40t-18 26-18 18-8 22q0 22 19 41t41 19q19 0 34-18t16-58q0-27-12-83t-37-125-71-119-106-51q-64 0-102 33-37 32-37 95 0 31 8 64t41 117q22 64 22 82z"/>
+  <path id="E1-MJMAIN-27E9" d="m55 732q1 7 6 12t14 6q10 0 17-10 3-7 94-246t92-244-91-244-95-246q-7-10-17-10-8 0-13 5t-7 13q0 5 90 243 91 237 91 239t-91 239q-90 238-90 243z"/>
+  <path id="E1-MJMAIN-3D" d="m56 347q0 13 14 20h637q15-8 15-20 0-11-14-19l-318-1h-318q-16 5-16 20zm0-194q0 15 16 20h636q14-10 14-20 0-13-15-20h-637q-14 7-14 20z"/>
+  <path id="E1-MJMATHI-54" d="m40 437q-19 0-19 8 0 5 16 56t34 101l17 49q5 18 13 26h558q32 0 38-1t7-9q0-6-17-114t-19-109q0-7-19-7-9 0-12 0t-6 5l-2 3q0 6 6 45t6 61q0 35-13 53t-55 25q-5 1-58 2-46 0-58-1t-18-8q-1-1-71-279t-70-283q0-12 88-14 32 0 41-1t9-9q0-5-3-14-4-18-9-21l-2-1q-3 0-7 0-5 0-52 1t-135 1q-129 0-164-2h-15q-6 6-6 9t2 18q4 13 10 19h39q80 0 95 9 1 1 2 1 5 3 10 20t40 157q17 68 28 111 70 275 70 281 0 5-29 5h-31q-67 0-88-6-45-10-70-41t-54-116q-7-22-10-26t-14-4h-3z"/>
+  <path id="E1-MJMAIN-2E" d="m78 60q0 24 17 42t43 18q24 0 42-16t19-43q0-25-17-43t-43-18-43 17-18 43z"/>
+ </defs>
+ <g stroke="currentColor" stroke-width="0" aria-hidden="true" transform="scale(1 -1)" fill="currentColor">
+  <use y="0" x="0" xlink:href="#E1-MJMAIN-27E8"/>
+  <use y="0" x="389" xlink:href="#E1-MJMATHI-75"/>
+  <use y="0" x="962" xlink:href="#E1-MJMAIN-2C"/>
+  <use y="0" x="1407" xlink:href="#E1-MJMATHI-76"/>
+  <use y="0" x="1892" xlink:href="#E1-MJMAIN-27E9"/>
+  <use y="0" x="2559" xlink:href="#E1-MJMAIN-3D"/>
+  <use y="0" x="3616" xlink:href="#E1-MJMAIN-27E8"/>
+  <use y="0" x="4005" xlink:href="#E1-MJMATHI-54"/>
+  <use y="0" x="4710" xlink:href="#E1-MJMATHI-75"/>
+  <use y="0" x="5282" xlink:href="#E1-MJMAIN-2C"/>
+  <use y="0" x="5727" xlink:href="#E1-MJMATHI-54"/>
+  <use y="0" x="6432" xlink:href="#E1-MJMATHI-76"/>
+  <use y="0" x="6917" xlink:href="#E1-MJMAIN-27E9"/>
+  <use y="0" x="7474" xlink:href="#E1-MJMAIN-2E"/>
+ </g>
+</svg>

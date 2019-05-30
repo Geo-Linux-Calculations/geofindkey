@@ -1,7 +1,10 @@
 # GeoFindKey
+
 Conformal transformation
 
 Conformal transformation on the plane is widely used in geodesy when creating local coordinate systems in small areas, limited by the size of the settlement.
+
+Based of [Coordinates transformation orthogonal](./doc/CTO.md)
 
 ## DOCUMENTATION
 
@@ -118,7 +121,7 @@ Result report.dat:
     diff:
     0.5123 0.7021 0.0117 0.0002495968 0.8690
 
-S-Z-B to Y-X-H conert:
+S-Z-B to Y-X-H convert:
 
 Input Data doc/szb.dat:
 
@@ -177,7 +180,7 @@ Input Data doc/szbunknow.dat:
     OKD-11    3.889  71.6025       313.60777778
     OKD-12    3.889  288.39138889  133.60805556
 
-Exec convert:
+Exec finding unknown distances:
 
     ./geositer500 doc/szbunknow.dat szb.dat
 
