@@ -6,6 +6,8 @@ Conformal transformation on the plane is widely used in geodesy when creating lo
 
 Based of [Coordinates transformation orthogonal](./doc/CTO.md)
 
+Theory and practice: [COORDINATE TRANSFORMATIONS FOR CADASTRAL SURVEYING](./doc/CTC.pdf)
+
 ## DOCUMENTATION
 
 See doc/*
