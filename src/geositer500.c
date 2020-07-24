@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 1.8
-Date: 2019-01-03
+Version: 1.9
+Date: 2020-07-24
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     char buf[1024], name[32], format4[128], format7[128];
     double x[3], y[3], z[3], dy[3], dz[3], s[6], a[2];
     double yc[3], zc[3];
-    double siter[500], st, ds, sds;
+    double siter[500], st, ds, sds, thres;
     unsigned n, i, j, k;
     char* units;
     int np;
@@ -217,10 +217,12 @@ int main(int argc, char *argv[])
     printf("Unknow distance: %d\n", n);
     rewind(fp0);
 
-    sds = 1.0;
+    thres = 1.0;
+    sds = 0.0;
     k = 0;
-    while (sds > 0.00000000001)
+    while (sds < thres)
     {
+        thres = sds;
         for (i = 0; i < 3; i++)
         {
             yc[i] = 0;
@@ -260,7 +262,7 @@ int main(int argc, char *argv[])
                 yc[i] /= n;
                 zc[i] /= n;
             }
-       }
+        }
         rewind(fp0);
 
         for (i = 0; i < 6; i++) {s[i] = 0;}
@@ -308,7 +310,7 @@ int main(int argc, char *argv[])
         dz[0] = a[0] * yc[0] - a[1] * yc[1];
         dz[1] = a[1] * yc[0] + a[0] * yc[1];
         yc[0] = dz[0];
-        yc[1] = dz[1];        
+        yc[1] = dz[1];
 
         j = 0;
         sds = 0;
@@ -339,6 +341,7 @@ int main(int argc, char *argv[])
         k++;
         printf("Iter: %d, sum ds: %.11f\n", k, sds);
         rewind(fp0);
+        thres = (thres > 0.0) ? thres : (sds * 2.0);
     }
 
     j = 0;

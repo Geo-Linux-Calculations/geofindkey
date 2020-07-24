@@ -2,6 +2,10 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/zvezdochiot/geofindkey
 
+1.9
+
+    add auto 'threshold eps' in geositer500
+
 1.8
 
     Units Version
