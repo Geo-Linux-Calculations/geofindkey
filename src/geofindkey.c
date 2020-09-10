@@ -1,10 +1,11 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 1.9
-Date: 2020-07-24
+Version: 2.0
+Date: 2020-09-09
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
+Author: Zoltan Siki (https://github.com/zsiki)
 *
 build:
 $ gcc -o geofindkey geofindkey.c -lm
@@ -34,6 +35,9 @@ var:
 2 563.670 -5197.340 82557.140 81916.510 1 0.016 -0.013
 3 4444.270 1153.790 86610.190 88160.390 1 -0.032 -0.016
 4 -252.070 2881.900 81962.050 90016.340 1 0.013 0.028
+
+diff:
+0.0269 0.0248 0.0115 0.0003672639 0.0292
 *
 */
 
@@ -43,7 +47,7 @@ var:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "1.9"
+#define PVERSION "2.0"
 
 void geofindkeytitle()
 {

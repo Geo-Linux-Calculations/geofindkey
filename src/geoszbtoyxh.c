@@ -1,8 +1,9 @@
 /*
 Name: geoszbtoyxh.c
-Version: 1.9
-Date: 2020-07-24
+Version: 2.0
+Date: 2020-09-09
 Author: zvezdochiot (https://github.com/zvezdochiot)
+Author: Zoltan Siki (https://github.com/zsiki)
 *
 build:
 $ gcc -o geoszzbtoyxh geosvbtoyxh.c -lm
@@ -54,7 +55,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <string.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "1.9"
+#define PVERSION "2.0"
 
 #define defUnits "DEG"
 

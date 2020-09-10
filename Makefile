@@ -2,13 +2,14 @@ PROJNAME      = geofindkey
 PROGNAME1     = geofindkey
 PROGNAME2     = geoszbtoyxh
 PROGNAME3     = geositer500
+PROGNAME4     = geofindkey2p
 SRCS          = src
-PROGS         = $(PROGNAME1) $(PROGNAME2) $(PROGNAME3)
+PROGS         = $(PROGNAME1) $(PROGNAME2) $(PROGNAME3) $(PROGNAME4)
 CPP           = gcc
-CFLAGS        = -Wall -s
+CFLAGS        = -Wall -g
 LIBS          = -lm
-VER           = 1
-REL           = 9
+VER           = 2
+REL           = 0
 PREFIX        = /usr/local
 INSTALL       = install
 LN            = ln -fs
@@ -27,6 +28,9 @@ $(PROGNAME2): $(SRCS)/$(PROGNAME2).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(PROGNAME3): $(SRCS)/$(PROGNAME3).c
+	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(PROGNAME4): $(SRCS)/$(PROGNAME4).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 install: $(PROGS)

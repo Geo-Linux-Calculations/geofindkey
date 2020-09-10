@@ -1,8 +1,9 @@
 /*
 Name: geositer500.c
-Version: 1.9
-Date: 2020-07-24
+Version: 2.0
+Date: 2020-09-09
 Author: zvezdochiot (https://github.com/zvezdochiot)
+Author: Zoltan Siki (https://github.com/zsiki)
 *
 build:
 $ gcc -o geositer500 geositer500.c -lm
@@ -53,7 +54,7 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <string.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "1.8"
+#define PVERSION "2.0"
 
 #define defUnits "DEG"
 

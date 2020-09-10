@@ -6,7 +6,10 @@ Conformal transformation on the plane is widely used in geodesy when creating lo
 
 Based of [Coordinates transformation orthogonal](./doc/CTO.md)
 
-Theory and practice: [COORDINATE TRANSFORMATIONS FOR CADASTRAL SURVEYING](./doc/CTC.pdf)
+Theory and practice:
+* [COORDINATE TRANSFORMATIONS FOR CADASTRAL SURVEYING](./doc/CTC.pdf)
+* [Weighted Coordinate Transformations](./doc/WCT.pdf)
+* [conformal transformations 1-4 power](./doc/conformal_trans_1-4power-ru.cbz)
 
 ## DOCUMENTATION
 
@@ -202,5 +205,7 @@ Result sbz.dat:
     OKD-4 8.6045 285.91444444 54.38972222 7471.2970 14588.7117 98.7445
     OKD-11 3.8890 71.60250000 313.60777778
     OKD-12 3.8890 288.39138889 133.60805556
+
+---  
 
 https://github.com/Geo-Linux-Calculations/geofindkey
