@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
 Version: 2.0
-Date: 2020-09-09
+Date: 2020-09-10
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -38,7 +38,7 @@ var:
 4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0093 -0.0127 -0.0075
 
 diff:
-0.0158 0.0092 0.0117
+0.0168 0.0096 0.0123
 *
 */
 
@@ -98,16 +98,15 @@ void geofindkey2pusage()
     fprintf(stderr, " 8 -252.0700 2881.9000 65.4100 81962.0593 50016.3273 215.4125\n");
     fprintf(stderr, " \n");
     fprintf(stderr, " diff:");
-    fprintf(stderr, " 0.0158 0.0092 0.0117");
+    fprintf(stderr, " 0.0168 0.0096 0.0123");
 }
 
 int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format3[128], format7[128], format11[128];
     double x[3] = {0}, y[3] = {0}, z[3] = {0}, wgt, n;
-    double xc[4] = {0}, yc[4] = {0};
-    double dx[3] = {0}, dy[3] = {0};
-    double dz0, dz1, dz2, dz0s, dz1s, dz2s;
+    double xc[4] = {0}, yc[3] = {0};
+    double dx[3] = {0}, dy[3] = {0}, dzs[3] = {0};
     double a[3][3], scale, rotation;
     double tx, ty, tx2, ty2;
     double s[15] = {0};
@@ -173,18 +172,23 @@ int main(int argc, char *argv[])
             s[6] += wgt;
             n++;
             s[7] += (x[0] * x[0] + x[1] * x[1]) * wgt;
-            s[8] += (y[0] * y[0] + y[1] * y[1]) * wgt;
         }
     }
-    if (n > 0)
+    if (n > 0.0)
     {
         s[7] -= (s[0] * s[0] + s[1] * s[1] )/ n;
-        s[8] -= (s[3] * s[3] + s[4] * s[4]) / n;
-        s[7] += s[8];
-        s[7] = sqrt(s[7]);
+        s[7] *= 2.0;
+        s[7] /= n;
+        if (s[7] > 0.0)
+        {
+            s[7] = sqrt(s[7]);
+        } else {
+            s[7] = 1.0;
+        }
+    } else {
+        s[7] = 1.0;
     }
     xc[3] = s[7];
-    yc[3] = s[7];
     rewind(fp0);
 
     /* найти центр масс */
@@ -290,9 +294,6 @@ int main(int argc, char *argv[])
         fprintf(fp1, "\n");
 
         /* вывести данные вместе с невязками */
-        dz0s = 0;
-        dz1s = 0;
-        dz2s = 0;
         fprintf(fp1, "var:\n");
         for (i = 0; i < 15; i++) {s[i] = 0.;}
         while (fgets(buf, 1024, fp0) != NULL)
@@ -311,11 +312,9 @@ int main(int argc, char *argv[])
                     for (i = 0; i < 3; i++)
                     {
                         dy[i] = z[i] - y[i];
+                        dzs[i] += (dy[i] * dy[i]);
                     }
                     fprintf(fp1, format11, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, dy[0], dy[1], dy[2]);
-                    dz0s += (dy[0] * dy[0]);
-                    dz1s += (dy[1] * dy[1]);
-                    dz2s += (dy[2] * dy[2]);
                 } else {
                     for (i = 0; i < 3; i++)
                     {
@@ -329,12 +328,17 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        dz0s = sqrt(2 * dz0s / n);
-        dz1s = sqrt(2 * dz1s / n);
-        dz2s = sqrt(2 * dz2s / n);
+        if (n > 0.0)
+        {
+            for (i = 0; i < 3; i++)
+            {
+                dzs[i] *= 2.0;
+                dzs[i] += sqrt(dzs[i] / n);;
+            }
+        }
         fprintf(fp1, "\n");
         fprintf(fp1, "diff:\n");
-        fprintf(fp1, format3, dz0s, dz1s, dz2s);
+        fprintf(fp1, format3, dzs[0], dzs[1], dzs[2]);
         fclose(fp1);
     }
     fclose(fp0);
