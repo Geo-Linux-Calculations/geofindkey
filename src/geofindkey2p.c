@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
-Version: 2.0
-Date: 2020-09-10
+Version: 2.1
+Date: 2020-09-11
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -20,25 +20,29 @@ input file doc/data.dat:
 output file report.dat:
 *
 key:
+--0-----
 82135.4060
 47128.1486
-150.0025
+149.9631
+--1-----
 0.999791518237
 -0.027293637599
+1.000606333521
+--2-----
 -0.000000001537
 0.000000000324
+========
 1.000163997848
-1.000531067446
 -1.5637479503
 
 var:
-1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0007 -0.0007 +0.0125
-2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0072 -0.0021 +0.0025
-3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 +0.0190 -0.0020 -0.0075
-4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0093 -0.0127 -0.0075
+1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0007 -0.0007 +0.0133
+2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0072 -0.0021 -0.0004
+3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 +0.0190 -0.0020 -0.0058
+4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0093 -0.0127 -0.0072
 
 diff:
-0.0168 0.0096 0.0123
+0.0168 0.0096 0.0120
 *
 */
 
@@ -48,7 +52,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey2Pow"
-#define PVERSION "2.0"
+#define PVERSION "2.1"
 
 void geofindkey2ptitle()
 {
@@ -60,8 +64,6 @@ void geofindkey2pusage()
     fprintf(stderr, "usage: geofindkey2p [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
     fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -r      rescale mode (bool, optional, default = false)\n");
-    fprintf(stderr, "          -s      station mode (bool, optional, default = false)\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -76,29 +78,33 @@ void geofindkey2pusage()
     fprintf(stderr, "\n");
     fprintf(stderr, "report-file(sample):\n");
     fprintf(stderr, " key:\n");
+    fprintf(stderr, " --0-----\n");
     fprintf(stderr, " 82135.4060\n");
     fprintf(stderr, " 47128.1486\n");
-    fprintf(stderr, " 150.0025\n");
+    fprintf(stderr, " 149.9631\n");
+    fprintf(stderr, " --1-----\n");
     fprintf(stderr, " 0.999791518237\n");
     fprintf(stderr, " -0.027293637599\n");
+    fprintf(stderr, " 1.000606333521\n");
+    fprintf(stderr, " --2-----\n");
     fprintf(stderr, " -0.000000001537\n");
     fprintf(stderr, " 0.000000000324\n");
+    fprintf(stderr, " ========\n");
     fprintf(stderr, " 1.000163997848\n");
-    fprintf(stderr, " 1.000531067446\n");
     fprintf(stderr, " -1.5637479503\n");
     fprintf(stderr, " \n");
     fprintf(stderr, " var:\n");
-    fprintf(stderr, " 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0007 -0.0007 +0.0125\n");
-    fprintf(stderr, " 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0072 -0.0021 +0.0025\n");
-    fprintf(stderr, " 3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 +0.0190 -0.0020 -0.0075\n");
-    fprintf(stderr, " 4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0093 -0.0127 -0.0075\n");
-    fprintf(stderr, " 5 1334.7100 285.9400 66.2900 83477.6393 47377.5993 216.2925\n");
-    fprintf(stderr, " 6 563.6700 -5197.3400 60.2100 82557.1472 41916.5079 210.2125\n");
-    fprintf(stderr, " 7 4444.2700 1153.7900 67.7600 86610.2090 48160.3880 217.7625\n");
-    fprintf(stderr, " 8 -252.0700 2881.9000 65.4100 81962.0593 50016.3273 215.4125\n");
+    fprintf(stderr, " 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0007 -0.0007 +0.0133\n");
+    fprintf(stderr, " 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 +0.0072 -0.0021 -0.0004\n");
+    fprintf(stderr, " 3 4444.2700 1153.7900 67.7600 86610.1900 48160.3900 217.7700 1 +0.0190 -0.0020 -0.0058\n");
+    fprintf(stderr, " 4 -252.0700 2881.9000 65.4100 81962.0500 50016.3400 215.4200 1 +0.0093 -0.0127 -0.0072\n");
+    fprintf(stderr, " 5 1334.7100 285.9400 66.2900 83477.6393 47377.5993 216.2933\n");
+    fprintf(stderr, " 6 563.6700 -5197.3400 60.2100 82557.1472 41916.5079 210.2096\n");
+    fprintf(stderr, " 7 4444.2700 1153.7900 67.7600 86610.2090 48160.3880 217.7642\n");
+    fprintf(stderr, " 8 -252.0700 2881.9000 65.4100 81962.0593 50016.3273 215.4128\n");
     fprintf(stderr, " \n");
     fprintf(stderr, " diff:");
-    fprintf(stderr, " 0.0168 0.0096 0.0123");
+    fprintf(stderr, " 0.0168 0.0096 0.0120");
 }
 
 int main(int argc, char *argv[])
@@ -157,7 +163,7 @@ int main(int argc, char *argv[])
 
     /* подсчитать сумму координат */
     n = 0;
-    for (i = 0; i < 8; i++) {s[i] = 0.;}
+    for (i = 0; i < 8; i++) {s[i] = 0.0;}
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -200,14 +206,14 @@ int main(int argc, char *argv[])
         {
             xc[i] /= s[6];
             yc[i] /= s[6];
-        } else if (n > 0) {
+        } else if (n > 0.0) {
             xc[i] /= n;
             yc[i] /= n;
         }
     }
 
     /* подсчитать сумму произведений */
-    for (i = 0; i < 15; i++) {s[i] = 0.;}
+    for (i = 0; i < 15; i++) {s[i] = 0.0;}
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -221,11 +227,9 @@ int main(int argc, char *argv[])
             ty = dx[1];
             tx2 = tx * tx;
             ty2 = ty * ty;
-            if (dx[2] < 0.0) {dx[2] = -dx[2];}
             dy[0] = (y[0] - yc[0]);
             dy[1] = (y[1] - yc[1]);
             dy[2] = (y[2] - yc[2]);
-            if (dy[2] < 0.0) {dy[2] = -dy[2];}
             /* суммировать */
             s[0] += (tx2 + ty2) * wgt;
             s[1] += (tx2 * tx + tx * ty2) * wgt;
@@ -235,8 +239,8 @@ int main(int argc, char *argv[])
             s[5] += (dy[1] * tx - dy[0] * ty) * wgt;
             s[6] += (dy[0] * tx2 - dy[0] * ty2 + 2 * dy[1] * tx * ty) * wgt;
             s[7] += (dy[1] * tx2 - dy[1] * ty2 - 2 * dy[0] * tx * ty) * wgt;
-            s[8] += dx[2] * wgt;
-            s[9] += dy[2] * wgt;
+            s[8] += dx[2] * dx[2] * wgt;
+            s[9] += dx[2] * dy[2] * wgt;
         }
     }
     s[10] = s[1] * s[6] - s[2] * s[7] - s[3] * s[4];
@@ -269,6 +273,7 @@ int main(int argc, char *argv[])
         ty = xc[0] * xc[1];
         a[0][0] = yc[0] - a[1][0] * xc[0] + a[1][1] * xc[1] - a[2][0] * tx + 2 * a[2][1] * ty;
         a[0][1] = yc[1] - a[1][1] * xc[0] - a[1][0] * xc[1] - a[2][1] * tx - 2 * a[2][0] * ty;
+        a[0][2] = yc[2] - a[1][2] * xc[2];
 
         /* найти вторичные параметры */
         scale = hypot(a[1][0], a[1][1]);
@@ -281,21 +286,25 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         fprintf(fp1, "key:\n");
+        fprintf(fp1, "--0-----\n");
         fprintf(fp1, "%.4f\n", a[0][0]);
         fprintf(fp1, "%.4f\n", a[0][1]);
         fprintf(fp1, "%.4f\n", a[0][2]);
+        fprintf(fp1, "--1-----\n");
         fprintf(fp1, "%.12f\n", a[1][0]);
         fprintf(fp1, "%.12f\n", a[1][1]);
+        fprintf(fp1, "%.12f\n", a[1][2]);
+        fprintf(fp1, "--2-----\n");
         fprintf(fp1, "%.12f\n", a[2][0]);
         fprintf(fp1, "%.12f\n", a[2][1]);
+        fprintf(fp1, "========\n");
         fprintf(fp1, "%.12f\n", scale);
-        fprintf(fp1, "%.12f\n", a[1][2]);
-        fprintf(fp1, "%+.10f\n", rotation * 180. / M_PI);
+        fprintf(fp1, "%+.10f\n", rotation * 180.0 / M_PI);
         fprintf(fp1, "\n");
 
         /* вывести данные вместе с невязками */
         fprintf(fp1, "var:\n");
-        for (i = 0; i < 15; i++) {s[i] = 0.;}
+        for (i = 0; i < 15; i++) {s[i] = 0.0;}
         while (fgets(buf, 1024, fp0) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -306,7 +315,7 @@ int main(int argc, char *argv[])
                 ty = x[0] * x[1];
                 z[0] = a[0][0] + a[1][0] * x[0] - a[1][1] * x[1] + a[2][0] * tx - 2 * a[2][1] * ty;
                 z[1] = a[0][1] + a[1][1] * x[0] + a[1][0] * x[1] + a[2][1] * tx + 2 * a[2][0] * ty;
-                z[2] = a[0][2] + x[2];
+                z[2] = a[0][2] + a[1][2] * x[2];
                 if (np >= 8)
                 {
                     for (i = 0; i < 3; i++)
