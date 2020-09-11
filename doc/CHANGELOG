@@ -2,6 +2,10 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/Geo-Linux-Calculations/geofindkey
 
+2.2
+
+    geofindkey2p: power 2 elevation factors
+
 2.1
 
     fixed elevation factors

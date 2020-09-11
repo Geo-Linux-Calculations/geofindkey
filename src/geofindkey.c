@@ -1,7 +1,7 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.1
+Version: 2.2
 Date: 2020-09-11
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
@@ -52,7 +52,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.1"
+#define PVERSION "2.2"
 
 void geofindkeytitle()
 {
@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
             n++;
         }
     }
+    n = (s[6] > 0.0) ? s[6] : n;
     rewind(fp0);
 
     /* найти центр масс */
@@ -188,11 +189,8 @@ int main(int argc, char *argv[])
     {
         xc[i] = s[i];
         yc[i] = s[3 + i];
-        if (s[6] != 0.0)
+        if (n > 0.0)
         {
-            xc[i] /= s[6];
-            yc[i] /= s[6];
-        } else if (n > 0) {
             xc[i] /= n;
             yc[i] /= n;
         }
@@ -232,9 +230,6 @@ int main(int argc, char *argv[])
     {
         a[1][0] /= s[6];
         a[1][1] /= s[6];
-    } else if (n > 0.0) {
-        a[1][0] /= n;
-        a[1][1] /= n;
     } else {
         a[1][0] = 1.0;
         a[1][1] = 0.0;
@@ -308,7 +303,7 @@ int main(int argc, char *argv[])
                     dy[i] = y[i] - yc[i];
                     dz[i] = z[i] - yc[i];
                     vdz[i] = z[i] - y[i];
-                    s[i] += vdz[i] * vdz[i] * wgt;
+                    s[i] += (vdz[i] * vdz[i]) * wgt;
                 }
                 az = atan2(dz[1], dz[0]);
                 saz = hypot(dz[0], dz[1]);
@@ -316,7 +311,6 @@ int main(int argc, char *argv[])
                 say = hypot(dy[0], dy[1]);
                 ds = say - saz;
                 s[3] += ds * ds * wgt;
-                s[5] += wgt;
                 da = ay - az;
                 da *= 180. / M_PI;
                 if (da > 180) {da -= 360;}
@@ -337,19 +331,14 @@ int main(int argc, char *argv[])
             }
         }
     }
-    if (s[5] != 0.0)
+    if (n > 0.0)
     {
-        for (i = 0; i < 4; i++)
-        {
-            s[i] /= s[5];
-        }
-    } else if (n > 0) {
         for (i = 0; i < 4; i++)
         {
             s[i] /= n;
         }
     }
-    if (s[6] != 0.0)
+    if (s[6] > 0.0)
     {
         s[4] /= s[6];
     }
