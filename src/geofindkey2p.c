@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
-Version: 2.2
-Date: 2020-09-11
+Version: 2.3
+Date: 2020-09-24
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -57,7 +57,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey2Pow"
-#define PVERSION "2.2"
+#define PVERSION "2.3"
 
 void geofindkey2ptitle()
 {

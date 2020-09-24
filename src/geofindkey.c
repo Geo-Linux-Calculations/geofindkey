@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.2
-Date: 2020-09-11
+Version: 2.3
+Date: 2020-09-24
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -52,7 +52,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.2"
+#define PVERSION "2.3"
 
 void geofindkeytitle()
 {
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format5[128], format7[128], format13[128];
     double x[3], y[3], z[3], wgt, n;
-    double xc[3], yc[3];
+    double xc[4], yc[4];
     double dx[3], dy[3], dz[3], vdz[3];
     double a[2][3], scale, rotation, ay, az, da, say, saz, ds;
     double s[8];
@@ -166,6 +166,8 @@ int main(int argc, char *argv[])
     /* подсчитать сумму координат */
     n = 0;
     for (i = 0; i < 8; i++) {s[i] = 0.0;}
+    xc[3] = 0.0;
+    yc[3] = 0.0;
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -179,9 +181,25 @@ int main(int argc, char *argv[])
             s[5] += y[2] * wgt;
             s[6] += wgt;
             n++;
+            xc[3] += (x[0] * x[0] + x[1] * x[1]) * wgt;
+            yc[3] += (x[2] * x[2]) * wgt;
         }
     }
     n = (s[6] > 0.0) ? s[6] : n;
+    if (n > 0.0)
+    {
+        xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
+        xc[3] *= 2.0;
+        xc[3] /= n;
+        xc[3] = (xc[3] > 0.0) ? sqrt(xc[3]) : 1.0;
+        yc[3] -= (s[2] * s[2])/ n;
+        yc[3] *= 2.0;
+        yc[3] /= n;
+        yc[3] = (yc[3] > 0.0) ? sqrt(yc[3]) : 1.0;
+    } else {
+        xc[3] = 1.0;
+        yc[3] = 1.0;
+    }
     rewind(fp0);
 
     /* найти центр масс */
@@ -204,12 +222,15 @@ int main(int argc, char *argv[])
         if (np >= 8)
         {
             /* вычислить разности */
-            dx[0] = x[0] - xc[0];
-            dx[1] = x[1] - xc[1];
-            dx[2] = x[2] - xc[2];
-            dy[0] = y[0] - yc[0];
-            dy[1] = y[1] - yc[1];
-            dy[2] = y[2] - yc[2];
+
+            for (i = 0; i < 3; i++)
+            {
+                dx[i] = x[i] - xc[i];
+                dy[i] = y[i] - yc[i];
+            }
+            dx[0] /= xc[3];
+            dx[1] /= xc[3];
+            dx[2] /= yc[3];
             /* суммировать */
             s[0] += dx[0] * dy[0] * wgt;
             s[1] += dx[1] * dy[1] * wgt;
@@ -223,9 +244,8 @@ int main(int argc, char *argv[])
     rewind(fp0);
 
     /* найти первичные параметры */
-    a[1][0] = (s[0] + s[1]);
-    a[1][1] = (s[3] - s[4]);
-    a[0][2] = yc[2] - xc[2];
+    a[1][0] = (s[0] + s[1]) / xc[3];
+    a[1][1] = (s[3] - s[4]) / xc[3];
     if (s[6] > 0.0)
     {
         a[1][0] /= s[6];
@@ -236,7 +256,7 @@ int main(int argc, char *argv[])
     }
     if (s[2] > 0.0)
     {
-        a[1][2] = s[5] / s[2];
+        a[1][2] = s[5] / s[2] / yc[3];
     } else {
         a[1][2] = 1.0;
     }
@@ -289,9 +309,11 @@ int main(int argc, char *argv[])
         if (np >= 4)
         {
             /* "наблюдённые" dx[], dy[] */
-            dx[0] = x[0] - xc[0];
-            dx[1] = x[1] - xc[1];
-            dx[2] = x[2] - xc[2];
+            for (i = 0; i < 3; i++)
+            {
+                dx[i] = x[i] - xc[i];
+                dy[i] = y[i] - yc[i];
+            }
             /* "вычисленные" dy[] */
             z[0] = a[0][0] + a[1][0] * x[0] - a[1][1] * x[1];
             z[1] = a[0][1] + a[1][1] * x[0] + a[1][0] * x[1];
