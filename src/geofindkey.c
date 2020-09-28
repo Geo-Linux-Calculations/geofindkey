@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.3
-Date: 2020-09-24
+Version: 2.4
+Date: 2020-09-28
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -52,7 +52,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.3"
+#define PVERSION "2.4"
 
 void geofindkeytitle()
 {
@@ -191,11 +191,11 @@ int main(int argc, char *argv[])
         xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
         xc[3] *= 2.0;
         xc[3] /= n;
-        xc[3] = (xc[3] > 0.0) ? sqrt(xc[3]) : 1.0;
+        xc[3] = (xc[3] > 0.0) ? (1.0 / sqrt(xc[3])) : 1.0;
         yc[3] -= (s[2] * s[2])/ n;
         yc[3] *= 2.0;
         yc[3] /= n;
-        yc[3] = (yc[3] > 0.0) ? sqrt(yc[3]) : 1.0;
+        yc[3] = (yc[3] > 0.0) ? (1.0 / sqrt(yc[3])) : 1.0;
     } else {
         xc[3] = 1.0;
         yc[3] = 1.0;
@@ -228,9 +228,9 @@ int main(int argc, char *argv[])
                 dx[i] = x[i] - xc[i];
                 dy[i] = y[i] - yc[i];
             }
-            dx[0] /= xc[3];
-            dx[1] /= xc[3];
-            dx[2] /= yc[3];
+            dx[0] *= xc[3];
+            dx[1] *= xc[3];
+            dx[2] *= yc[3];
             /* суммировать */
             s[0] += dx[0] * dy[0] * wgt;
             s[1] += dx[1] * dy[1] * wgt;
@@ -244,8 +244,8 @@ int main(int argc, char *argv[])
     rewind(fp0);
 
     /* найти первичные параметры */
-    a[1][0] = (s[0] + s[1]) / xc[3];
-    a[1][1] = (s[3] - s[4]) / xc[3];
+    a[1][0] = (s[0] + s[1]) * xc[3];
+    a[1][1] = (s[3] - s[4]) * xc[3];
     if (s[6] > 0.0)
     {
         a[1][0] /= s[6];
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
     }
     if (s[2] > 0.0)
     {
-        a[1][2] = s[5] / s[2] / yc[3];
+        a[1][2] = s[5] / s[2] * yc[3];
     } else {
         a[1][2] = 1.0;
     }

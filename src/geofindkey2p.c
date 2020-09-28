@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
-Version: 2.3
-Date: 2020-09-24
+Version: 2.4
+Date: 2020-09-28
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -57,7 +57,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey2Pow"
-#define PVERSION "2.3"
+#define PVERSION "2.4"
 
 void geofindkey2ptitle()
 {
@@ -183,27 +183,25 @@ int main(int argc, char *argv[])
             s[5] += y[2] * wgt;
             s[6] += wgt;
             n++;
-            s[7] += (x[0] * x[0] + x[1] * x[1]) * wgt;
-            s[8] += (x[2] * x[2]) * wgt;
+            xc[3] += (x[0] * x[0] + x[1] * x[1]) * wgt;
+            yc[3] += (x[2] * x[2]) * wgt;
         }
     }
     n = (s[6] > 0.0) ? s[6] : n;
     if (n > 0.0)
     {
-        s[7] -= (s[0] * s[0] + s[1] * s[1] )/ n;
-        s[7] *= 2.0;
-        s[7] /= n;
-        s[7] = (s[7] > 0.0) ? sqrt(s[7]) : 1.0;
-        s[8] -= (s[2] * s[2])/ n;
-        s[8] *= 2.0;
-        s[8] /= n;
-        s[8] = (s[8] > 0.0) ? sqrt(s[8]) : 1.0;
+        xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
+        xc[3] *= 2.0;
+        xc[3] /= n;
+        xc[3] = (xc[3] > 0.0) ? (1.0 / sqrt(xc[3])) : 1.0;
+        yc[3] -= (s[2] * s[2])/ n;
+        yc[3] *= 2.0;
+        yc[3] /= n;
+        yc[3] = (yc[3] > 0.0) ? (1.0 / sqrt(yc[3])) : 1.0;
     } else {
-        s[7] = 1.0;
-        s[8] = 1.0;
+        xc[3] = 1.0;
+        yc[3] = 1.0;
     }
-    xc[3] = s[7];
-    yc[3] = s[8];
 
     rewind(fp0);
 
@@ -227,16 +225,18 @@ int main(int argc, char *argv[])
         if (np >= 8)
         {
             /* вычислить разности */
-            dx[0] = (x[0] - xc[0]) / xc[3];
-            dx[1] = (x[1] - xc[1]) / xc[3];
-            dx[2] = (x[2] - xc[2]) / yc[3];
+            for (i = 0; i < 3; i++)
+            {
+                dx[i] = (x[i] - xc[i]);
+                dy[i] = (y[i] - yc[i]);
+            }
+            dx[0] *= xc[3];
+            dx[1] *= xc[3];
+            dx[2] *= yc[3];
             tx = dx[0];
             ty = dx[1];
             tx2 = tx * tx;
             ty2 = ty * ty;
-            dy[0] = (y[0] - yc[0]);
-            dy[1] = (y[1] - yc[1]);
-            dy[2] = (y[2] - yc[2]);
             /* суммировать */
             s[0] += (tx2 + ty2) * wgt;
             s[1] += (tx2 * tx + tx * ty2) * wgt;
@@ -261,16 +261,25 @@ int main(int argc, char *argv[])
     s[18] = s[13] * (s[9] * s[12] - s[10] * s[11]) + s[8] * s[8] * s[11];
     s[19] = s[13] * (s[9] * s[11] - s[8] * s[12]);
     s[20] = s[8] * s[8] * s[8] + s[13] * (s[9] * s[9] - s[8] * s[10]);
+    s[13] *= xc[3];
+    s[14] *= xc[3];
+    s[15] *= xc[3];
+    s[16] *= xc[3];
+    s[15] *= xc[3];
+    s[16] *= xc[3];
+    s[18] *= yc[3];
+    s[19] *= yc[3];
+    s[19] *= yc[3];
 
     rewind(fp0);
 
     /* найти первичные параметры */
     if (s[17] < 0.0 || s[17] > 0.0)
     {
-        a[1][0] = s[13] / s[17] / xc[3];
-        a[1][1] = s[14] / s[17] / xc[3];
-        a[2][0] = s[15] / s[17] / xc[3] / xc[3];
-        a[2][1] = s[16] / s[17] / xc[3] / xc[3];
+        a[1][0] = s[13] / s[17];
+        a[1][1] = s[14] / s[17];
+        a[2][0] = s[15] / s[17];
+        a[2][1] = s[16] / s[17];
     } else {
         a[1][0] = 1.0;
         a[1][1] = 0.0;
@@ -279,8 +288,8 @@ int main(int argc, char *argv[])
     }
     if (s[20] < 0.0 || s[20] > 0.0)
     {
-        a[2][2] = s[19] / s[20] / yc[3] / yc[3];
-        a[1][2] = s[18] / s[20] / yc[3];
+        a[2][2] = s[19] / s[20];
+        a[1][2] = s[18] / s[20];
         a[1][2] -= (2.0 * a[2][2] * xc[2]);
     } else {
         a[1][2] = 1.0;
