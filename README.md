@@ -22,9 +22,11 @@ The procedure for compiling is:
 make
 ```
 
+---
+
 ## SAMPLE
 
-GeoFindKey:
+### GeoFindKey:
 
 Input Data doc/data.dat:
 ```
@@ -38,7 +40,7 @@ Input Data doc/data.dat:
 8 -252.07  2881.90 65.41
 ```
 
-Mode Normal:
+#### Mode Normal:
 ```sh
 ./geofindkey doc/data.dat report.dat
 ```
@@ -73,7 +75,7 @@ diff:
 0.0269 0.0248 0.0115 0.0003672639 0.0292
 ```
 
-Mode Rescale:
+#### Mode Rescale:
 ```sh
 ./geofindkey -r doc/data.dat report.dat
 ```
@@ -108,7 +110,7 @@ diff:
 0.3798 0.6997 0.0117 0.0003672639 0.7958
 ```
 
-2 power:
+### GeoFindKey 2 power:
 ```sh
 ./geofindkey2p doc/data.dat report.dat
 ```
@@ -146,7 +148,7 @@ diff:
 0.0158 0.0092 0.0114
 ```
 
-S-Z-B to Y-X-H convert:
+### S-Z-B to Y-X-H convert:
 
 Input Data doc/szb.dat:
 ```
@@ -189,7 +191,7 @@ OKD-11 -2.6720 2.5452 1.2274
 OKD-12 -2.6721 2.5453 1.2270
 ```
 
-SIter (estimation of unknown distances):
+### SIter (estimation of unknown distances):
 
 Input Data doc/szbunknow.dat:
 ```
