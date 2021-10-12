@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
-Version: 2.4
-Date: 2020-09-28
+Version: 2.5
+Date: 2021-10-10
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -55,7 +55,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <string.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "2.4"
+#define PVERSION "2.5"
 
 #define defUnits "DEG"
 
@@ -69,6 +69,7 @@ void geoszbtoyxhusage()
     fprintf(stderr, "usage: geoszbtoyxh [option] [input-file [report-file]]\n");
     fprintf(stderr, "options:\n");
     fprintf(stderr, "          -d N    decimal after comma, default=4\n");
+    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
     fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
@@ -149,10 +150,10 @@ int main(int argc, char *argv[])
 
     int opt;
     int decimals = 4;   /* number of decimals in the calculated coordinates */
-    double PI2 = M_PI / 2.0;  /* PI/2 */
+    double RE = 6370009.0;
     int fhelp = 0;  /* default no help*/
     units = defUnits;
-    while ((opt = getopt(argc, argv, "d:u:h")) != -1)
+    while ((opt = getopt(argc, argv, "d:r:u:h")) != -1)
     {
         switch(opt)
         {
@@ -161,6 +162,9 @@ int main(int argc, char *argv[])
                 break;
             case 'd':
                 decimals = atoi(optarg);
+                break;
+            case 'r':
+                RE = atof(optarg);
                 break;
             case 'u':
                 units = optarg;
@@ -215,10 +219,10 @@ int main(int argc, char *argv[])
             name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
         if (np >= 4) {
             x[1] = ANGLEtoRAD(x[1], units);
-            x[1] = PI2 - x[1];;
+            x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
             x[2] = ANGLEtoRAD(x[2], units);
-            y[2] = x[0] * sin(x[1]);
-            x[0] *= cos(x[1]);
+            y[2] = x[0] * cos(x[1]);
+            x[0] *= sin(x[1]);
             y[0] = x[0] * sin(x[2]);
             y[1] = x[0] * cos(x[2]);
             if (np >= 7)

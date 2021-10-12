@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 2.4
-Date: 2020-09-28
+Version: 2.5
+Date: 2021-10-10
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -54,7 +54,7 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <string.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "2.4"
+#define PVERSION "2.5"
 
 #define defUnits "DEG"
 
@@ -68,6 +68,7 @@ void geositer500usage()
     fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
     fprintf(stderr, "          -d N    decimal after comma, default=4\n");
+    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
     fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
@@ -149,12 +150,13 @@ int main(int argc, char *argv[])
     int np;
     FILE *fp0, *fp1;
 
+    double RE = 6370009.0;
+
     int opt;
-    double PI2 = M_PI / 2.0;  /* PI/2 */
     int decimals = 4;   /* number of decimals in the calculated coordinates */
     int fhelp = 0;
     units = defUnits;
-    while ((opt = getopt(argc, argv, "d:u:h")) != -1)
+    while ((opt = getopt(argc, argv, "d:r:u:h")) != -1)
     {
         switch(opt)
         {
@@ -163,6 +165,9 @@ int main(int argc, char *argv[])
                 break;
             case 'd':
                 decimals = atoi(optarg);
+                break;
+            case 'r':
+                RE = atof(optarg);
                 break;
             case 'u':
                 units = optarg;
@@ -242,10 +247,10 @@ int main(int argc, char *argv[])
                     j++;
                 }
                 x[1] = ANGLEtoRAD(x[1], units);
-                x[1] = PI2 - x[1];;
+                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
                 x[2] = ANGLEtoRAD(x[2], units);
-                y[2] = x[0] * sin(x[1]);
-                x[0] *= cos(x[1]);
+                y[2] = x[0] * cos(x[1]);
+                x[0] *= sin(x[1]);
                 y[0] = x[0] * sin(x[2]);
                 y[1] = x[0] * cos(x[2]);
                 for (i = 0; i < 3; i++)
@@ -279,10 +284,10 @@ int main(int argc, char *argv[])
                     j++;
                 }
                 x[1] = ANGLEtoRAD(x[1], units);
-                x[1] = PI2 - x[1];;
+                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
                 x[2] = ANGLEtoRAD(x[2], units);
-                y[2] = x[0] * sin(x[1]);
-                x[0] *= cos(x[1]);
+                y[2] = x[0] * cos(x[1]);
+                x[0] *= sin(x[1]);
                 y[0] = x[0] * sin(x[2]);
                 y[1] = x[0] * cos(x[2]);
                 for (i = 0; i < 3; i++)

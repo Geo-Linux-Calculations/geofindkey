@@ -1,4 +1,4 @@
-.TH "GeoSZBtoYXH" 1 2.2 "11 Sep 2020" "User Manual"
+.TH "GeoSZBtoYXH" 1 2.5 "10 Oct 2021" "User Manual"
 
 .SH NAME
 geoszbtoyxh
@@ -13,6 +13,9 @@ geoszbtoyxh [options] [input-file [report-file]]
 .TP
 -d N
 number of decimals in the result coordinates, default 4
+.TP
+-r N.N
+radius Earth, default=6370009.0
 .TP
 -u str
 units angles {RAD,DEG,GON,DMS}, default=DEG
@@ -60,7 +63,7 @@ report-file optional, default stdout
 geoszbtoyxh doc/szb.dat yxh.dat
 
 .SH COPYRIGHT
-Copyright 2018-2020 zvezdochiot.
+Copyright 2018-2021 zvezdochiot.
  All rights reserved.
 
 .SH SEE ALSO

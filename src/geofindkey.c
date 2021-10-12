@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.4
-Date: 2020-09-28
+Version: 2.5
+Date: 2021-10-10
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -52,7 +52,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.4"
+#define PVERSION "2.5"
 
 void geofindkeytitle()
 {
