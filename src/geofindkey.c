@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.5
-Date: 2021-10-10
+Version: 2.6
+Date: 2021-11-09
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -22,7 +22,8 @@ input file doc/data.dat:
 *
 output file report.dat:
 *
-key(normal):
+key:
+(NORM)
 --0-----
 82135.4073
 47128.1437
@@ -49,10 +50,14 @@ diff:
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.5"
+#define PVERSION "2.6"
+
+#define defMScale "NORM"
+#define defREarth 6370009.0
 
 void geofindkeytitle()
 {
@@ -64,7 +69,8 @@ void geofindkeyusage()
     fprintf(stderr, "usage: geofindkey [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
     fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -r      rescale mode (bool, optional, default = false)\n");
+    fprintf(stderr, "          -m str  rescale mode {NORM,EQUAL,EARCH}, default=NORM\n");
+    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -79,7 +85,7 @@ void geofindkeyusage()
     fprintf(stderr, "\n");
     fprintf(stderr, "report-file(sample):\n");
     fprintf(stderr, " key:\n");
-    fprintf(stderr, " (normal)\n");
+    fprintf(stderr, " (NORM)\n");
     fprintf(stderr, " --0-----\n");
     fprintf(stderr, " 82135.4073\n");
     fprintf(stderr, " 47128.1437\n");
@@ -106,6 +112,17 @@ void geofindkeyusage()
     fprintf(stderr, " 0.0269 0.0248 0.0115 0.0003672639 0.0292\n");
 }
 
+int IndexMScale(char* mscale)
+{
+    if (!strcmp(mscale,"NORM"))
+        return 0;
+    if (!strcmp(mscale,"EQUAL"))
+        return 1;
+    if (!strcmp(mscale,"EARTH"))
+        return 2;
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format5[128], format7[128], format13[128];
@@ -118,18 +135,24 @@ int main(int argc, char *argv[])
     FILE *fp0, *fp1;
 
     int opt;
+    char* mscale;
     int decimals = 4;   /* number of decimals in the calculated coordinates */
+    double RE = defREarth;
     int frescale = 0;
+    mscale = defMScale;
     int fhelp = 0;
-    while ((opt = getopt(argc, argv, "d:rh")) != -1)
+    while ((opt = getopt(argc, argv, "d:m:r:h")) != -1)
     {
         switch(opt)
         {
             case 'd':
                 decimals = atoi(optarg);
                 break;
+            case 'm':
+                mscale = optarg;
+                break;
             case 'r':
-                frescale = 1;
+                RE = atof(optarg);
                 break;
             case 'h':
                 fhelp = 1;
@@ -162,6 +185,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
+
+    frescale = IndexMScale(mscale);
+    if (frescale == 0) mscale = defMScale;
 
     /* подсчитать сумму координат */
     n = 0;
@@ -264,12 +290,25 @@ int main(int argc, char *argv[])
     /* найти вторичные параметры */
     scale = hypot(a[1][0], a[1][1]);
     rotation = atan2(a[1][1], a[1][0]);
-    if (frescale > 0 && scale != 0.0)
+
+    if(frescale > 0)
     {
-        a[1][0] /= scale;
-        a[1][1] /= scale;
-        a[1][2] = 1.0;
+    	if (scale > 0.0)
+		{
+		    a[1][0] /= scale;
+			a[1][1] /= scale;
+		}
+		a[1][2] = 1.0;
+        if(frescale > 1)
+        {
+			if (RE > 0.0)
+			{
+				a[1][0] *= (1.0 - yc[2] / RE);
+				a[1][1] *= (1.0 - yc[2] / RE);
+			}
+		}
     }
+
     a[0][0] = yc[0] - a[1][0] * xc[0] + a[1][1] * xc[1];
     a[0][1] = yc[1] - a[1][1] * xc[0] - a[1][0] * xc[1];
     a[0][2] = yc[2] - a[1][2] * xc[2];
@@ -281,12 +320,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     fprintf(fp1, "key:\n");
-    if (frescale > 0)
-    {
-        fprintf(fp1, "(rescale)\n");
-    } else {
-        fprintf(fp1, "(normal)\n");
-    }
+    fprintf(fp1, "(%s)\n", mscale);
     fprintf(fp1, "--0-----\n");
     fprintf(fp1, "%.4f\n", a[0][0]);
     fprintf(fp1, "%.4f\n", a[0][1]);

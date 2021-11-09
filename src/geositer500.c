@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 2.5
-Date: 2021-10-10
+Version: 2.6
+Date: 2021-11-09
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -50,12 +50,13 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "2.5"
+#define PVERSION "2.6"
 
+#define defREarth 6370009.0
 #define defUnits "DEG"
 
 void geositer500title()
@@ -150,9 +151,8 @@ int main(int argc, char *argv[])
     int np;
     FILE *fp0, *fp1;
 
-    double RE = 6370009.0;
-
     int opt;
+    double RE = defREarth;
     int decimals = 4;   /* number of decimals in the calculated coordinates */
     int fhelp = 0;
     units = defUnits;

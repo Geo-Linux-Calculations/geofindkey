@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
-Version: 2.5
-Date: 2021-10-10
+Version: 2.6
+Date: 2021-11-09
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -51,12 +51,13 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "2.5"
+#define PVERSION "2.6"
 
+#define defREarth 6370009.0
 #define defUnits "DEG"
 
 void geoszbtoyxhtitle()
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
 
     int opt;
     int decimals = 4;   /* number of decimals in the calculated coordinates */
-    double RE = 6370009.0;
+    double RE = defREarth;
     int fhelp = 0;  /* default no help*/
     units = defUnits;
     while ((opt = getopt(argc, argv, "d:r:u:h")) != -1)

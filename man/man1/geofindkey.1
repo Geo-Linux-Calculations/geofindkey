@@ -1,4 +1,4 @@
-.TH "GeoFindKey" 1 2.5 "10 Oct 2021" "User Manual"
+.TH "GeoFindKey" 1 2.6 "09 Nov 2021" "User Manual"
 
 .SH NAME
 geofindkey
@@ -12,10 +12,13 @@ geofindkey [option] input-file report-file
 .SH OPTIONS
 .TP
 -d N
-number of decimals in the result coordinates, default 4
+number of decimals in the result coordinates, default=4
 .TP
--r
-rescale mode (bool, optional, default = false)
+-m str
+rescale mode {NORM,EQUAL,EARCH}, default=NORM
+.TP
+-r N.N
+radius Earth, default=6370009.0
 .TP
 -h
 help
@@ -36,7 +39,7 @@ input-file
 report-file
 (sample):
  key:
- (normal)
+ (NORM)
  --0-----
  82135.4073
  47128.1437
