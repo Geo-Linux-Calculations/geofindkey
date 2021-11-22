@@ -3,8 +3,9 @@ PROGNAME1     = geofindkey
 PROGNAME2     = geoszbtoyxh
 PROGNAME3     = geositer500
 PROGNAME4     = geofindkey2p
+PROGNAME5     = geodeform500
 SRCS          = src
-PROGS         = $(PROGNAME1) $(PROGNAME2) $(PROGNAME3) $(PROGNAME4)
+PROGS         = $(PROGNAME1) $(PROGNAME2) $(PROGNAME3) $(PROGNAME4) $(PROGNAME5)
 CPP           = gcc
 CFLAGS        = -Wall -s
 LIBS          = -lm
@@ -31,6 +32,9 @@ $(PROGNAME3): $(SRCS)/$(PROGNAME3).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(PROGNAME4): $(SRCS)/$(PROGNAME4).c
+	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(PROGNAME5): $(SRCS)/$(PROGNAME5).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
 
 install: $(PROGS)

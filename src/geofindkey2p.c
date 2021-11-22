@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
-Version: 2.6
-Date: 2021-11-09
+Version: 2.7
+Date: 2021-11-22
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -12,10 +12,14 @@ $ ./geofindkey2p doc/data.dat report.dat
 file:
 input file doc/data.dat:
 *
-1 1334.71   285.94 83477.64 87377.60 1.0
-2  563.67 -5197.34 82557.14 81916.51 1.0
-3 4444.27  1153.79 86610.19 88160.39 1.0
-4 -252.07  2881.90 81962.05 90016.34 1.0
+1 1334.71   285.94 66.29 83477.64 47377.60 216.28 1.0
+2  563.67 -5197.34 60.21 82557.14 41916.51 210.21 1.0
+3 4444.27  1153.79 67.76 86610.19 48160.39 217.77 1.0
+4 -252.07  2881.90 65.41 81962.05 50016.34 215.42 1.0
+5 1334.71   285.94 66.29
+6  563.67 -5197.34 60.21
+7 4444.27  1153.79 67.76
+8 -252.07  2881.90 65.41
 *
 output file report.dat:
 *
@@ -57,7 +61,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey2Pow"
-#define PVERSION "2.6"
+#define PVERSION "2.7"
 
 void geofindkey2ptitle()
 {
@@ -132,27 +136,27 @@ int main(int argc, char *argv[])
     {
         switch(opt)
         {
-            case 'd':
-                decimals = atoi(optarg);
-                break;
-            case 'h':
-                fhelp = 1;
-                break;
-            case ':':
-                fprintf(stderr, "option needs a value\n");
-                break;
-            case '?':
-                fprintf(stderr, "unknown option: %c\n", optopt);
-                break;
+        case 'd':
+            decimals = atoi(optarg);
+            break;
+        case 'h':
+            fhelp = 1;
+            break;
+        case ':':
+            fprintf(stderr, "option needs a value\n");
+            break;
+        case '?':
+            fprintf(stderr, "unknown option: %c\n", optopt);
+            break;
         }
     }
 
     sprintf(format3, "%%.%df %%.%df %%.%df\n",
-        decimals, decimals, decimals);
+            decimals, decimals, decimals);
     sprintf(format7, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df\n",
-        decimals, decimals, decimals, decimals, decimals, decimals);
+            decimals, decimals, decimals, decimals, decimals, decimals);
     sprintf(format11, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df %%g %%+.%df %%+.%df %%+.%df\n",
-        decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals);
+            decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals, decimals);
     geofindkey2ptitle();
 
     if ((optind + 2 > argc) || (fhelp > 0))
@@ -169,7 +173,10 @@ int main(int argc, char *argv[])
 
     /* подсчитать сумму координат */
     n = 0.0;
-    for (i = 0; i < 21; i++) {s[i] = 0.0;}
+    for (i = 0; i < 21; i++)
+    {
+        s[i] = 0.0;
+    }
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -198,7 +205,9 @@ int main(int argc, char *argv[])
         yc[3] *= 2.0;
         yc[3] /= n;
         yc[3] = (yc[3] > 0.0) ? (1.0 / sqrt(yc[3])) : 1.0;
-    } else {
+    }
+    else
+    {
         xc[3] = 1.0;
         yc[3] = 1.0;
     }
@@ -218,7 +227,10 @@ int main(int argc, char *argv[])
     }
 
     /* подсчитать сумму произведений */
-    for (i = 0; i < 21; i++) {s[i] = 0.0;}
+    for (i = 0; i < 21; i++)
+    {
+        s[i] = 0.0;
+    }
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -280,7 +292,9 @@ int main(int argc, char *argv[])
         a[1][1] = s[14] / s[17];
         a[2][0] = s[15] / s[17];
         a[2][1] = s[16] / s[17];
-    } else {
+    }
+    else
+    {
         a[1][0] = 1.0;
         a[1][1] = 0.0;
         a[2][0] = 0.0;
@@ -291,7 +305,9 @@ int main(int argc, char *argv[])
         a[2][2] = s[19] / s[20];
         a[1][2] = s[18] / s[20];
         a[1][2] -= (2.0 * a[2][2] * xc[2]);
-    } else {
+    }
+    else
+    {
         a[1][2] = 1.0;
         a[2][2] = 0.0;
     }
@@ -335,7 +351,10 @@ int main(int argc, char *argv[])
 
     /* вывести данные вместе с невязками */
     fprintf(fp1, "var:\n");
-    for (i = 0; i < 21; i++) {s[i] = 0.0;}
+    for (i = 0; i < 21; i++)
+    {
+        s[i] = 0.0;
+    }
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -355,15 +374,20 @@ int main(int argc, char *argv[])
                     dzs[i] += (dy[i] * dy[i]) * wgt;
                 }
                 fprintf(fp1, format11, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, dy[0], dy[1], dy[2]);
-            } else {
+            }
+            else
+            {
                 for (i = 0; i < 3; i++)
                 {
                     y[i] = z[i];
                 }
                 fprintf(fp1, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
             }
-        } else {
-            if (np > 0) {       /* no error for empty lines */
+        }
+        else
+        {
+            if (np > 0)         /* no error for empty lines */
+            {
                 fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
             }
         }

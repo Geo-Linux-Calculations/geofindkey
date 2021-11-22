@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 2.6
-Date: 2021-11-09
+Version: 2.7
+Date: 2021-11-22
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -54,7 +54,7 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <unistd.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "2.6"
+#define PVERSION "2.7"
 
 #define defREarth 6370009.0
 #define defUnits "DEG"
@@ -160,31 +160,31 @@ int main(int argc, char *argv[])
     {
         switch(opt)
         {
-            case 'h':
-                fhelp = 1;
-                break;
-            case 'd':
-                decimals = atoi(optarg);
-                break;
-            case 'r':
-                RE = atof(optarg);
-                break;
-            case 'u':
-                units = optarg;
-                break;
-            case ':':
-                fprintf(stderr, "option needs a value\n");
-                break;
-            case '?':
-                fprintf(stderr, "unknown option: %c\n", optopt);
-                break;
+        case 'h':
+            fhelp = 1;
+            break;
+        case 'd':
+            decimals = atoi(optarg);
+            break;
+        case 'r':
+            RE = atof(optarg);
+            break;
+        case 'u':
+            units = optarg;
+            break;
+        case ':':
+            fprintf(stderr, "option needs a value\n");
+            break;
+        case '?':
+            fprintf(stderr, "unknown option: %c\n", optopt);
+            break;
         }
     }
 
     sprintf(format4, "%%s %%.%df %%.8f %%.8f\n",
-        decimals);
+            decimals);
     sprintf(format7, "%%s %%.%df %%.8f %%.8f %%.%df %%.%df %%.%df\n",
-        decimals, decimals, decimals, decimals);
+            decimals, decimals, decimals, decimals);
     geositer500title();
 
     if ((optind + 2 > argc) || (fhelp > 0))
@@ -271,7 +271,10 @@ int main(int argc, char *argv[])
         }
         rewind(fp0);
 
-        for (i = 0; i < 6; i++) {s[i] = 0;}
+        for (i = 0; i < 6; i++)
+        {
+            s[i] = 0;
+        }
         j = 0;
         while (fgets(buf, 1024, fp0) != NULL)
         {
@@ -308,7 +311,9 @@ int main(int argc, char *argv[])
         {
             a[0] /= s[4];
             a[1] /= s[4];
-        } else if (n > 0) {
+        }
+        else if (n > 0)
+        {
             a[0] /= n;
             a[1] /= n;
         }
@@ -337,7 +342,10 @@ int main(int argc, char *argv[])
                     }
                     st = sqrt(st);
                     ds = st - siter[j];
-                    if (ds < 0) {ds = -ds;}
+                    if (ds < 0)
+                    {
+                        ds = -ds;
+                    }
                     sds += ds;
                     siter[j] = st;
                     j++;
@@ -354,7 +362,8 @@ int main(int argc, char *argv[])
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-        if (np >= 4) {
+        if (np >= 4)
+        {
             if (np >= 7)
             {
                 if (x[0] < 0)
@@ -363,11 +372,16 @@ int main(int argc, char *argv[])
                     j++;
                 }
                 fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
-            } else {
+            }
+            else
+            {
                 fprintf(fp1, format4, name, x[0], x[1], x[2]);
             }
-        } else {
-            if (np > 0) {       /* no error for empty lines */
+        }
+        else
+        {
+            if (np > 0)         /* no error for empty lines */
+            {
                 fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
             }
         }

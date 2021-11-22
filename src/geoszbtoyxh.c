@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
-Version: 2.6
-Date: 2021-11-09
+Version: 2.7
+Date: 2021-11-22
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -55,7 +55,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <unistd.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "2.6"
+#define PVERSION "2.7"
 
 #define defREarth 6370009.0
 #define defUnits "DEG"
@@ -158,33 +158,33 @@ int main(int argc, char *argv[])
     {
         switch(opt)
         {
-            case 'h':
-                fhelp = 1;
-                break;
-            case 'd':
-                decimals = atoi(optarg);
-                break;
-            case 'r':
-                RE = atof(optarg);
-                break;
-            case 'u':
-                units = optarg;
-                break;
-            case ':':
-                fprintf(stderr, "option needs a value\n");
-                fhelp = 1;
-                break;
-            case '?':
-                fprintf(stderr, "unknown option: %c\n", optopt);
-                fhelp = 1;
-                break;
+        case 'h':
+            fhelp = 1;
+            break;
+        case 'd':
+            decimals = atoi(optarg);
+            break;
+        case 'r':
+            RE = atof(optarg);
+            break;
+        case 'u':
+            units = optarg;
+            break;
+        case ':':
+            fprintf(stderr, "option needs a value\n");
+            fhelp = 1;
+            break;
+        case '?':
+            fprintf(stderr, "unknown option: %c\n", optopt);
+            fhelp = 1;
+            break;
         }
     }
 
     sprintf(format4, "%%s %%.%df %%.%df %%.%df\n",
-        decimals, decimals, decimals);
+            decimals, decimals, decimals);
     sprintf(format7, "%%s %%.%df %%.%df %%.%df %%.%df %%.%df %%.%df 1\n",
-        decimals, decimals, decimals, decimals, decimals, decimals);
+            decimals, decimals, decimals, decimals, decimals, decimals);
     geoszbtoyxhtitle();
 
     if (fhelp)
@@ -200,7 +200,9 @@ int main(int argc, char *argv[])
             fprintf(stderr, "can't open %s\n", argv[1]);
             exit(EXIT_FAILURE);
         }
-    } else {
+    }
+    else
+    {
         fp0 = stdin;    /* use standard input if no file given */
     }
     if (argc > optind+1)
@@ -210,15 +212,18 @@ int main(int argc, char *argv[])
             fprintf(stderr, "can't create %s\n", argv[2]);
             exit(EXIT_FAILURE);
         }
-    } else {
+    }
+    else
+    {
         fp1 = stdout;   /* use standard output if no file given */
     }
 
     while (fgets(buf, 1024, fp0) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
-            name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
-        if (np >= 4) {
+                    name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
+        if (np >= 4)
+        {
             x[1] = ANGLEtoRAD(x[1], units);
             x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
             x[2] = ANGLEtoRAD(x[2], units);
@@ -229,11 +234,16 @@ int main(int argc, char *argv[])
             if (np >= 7)
             {
                 fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
-            } else {
+            }
+            else
+            {
                 fprintf(fp1, format4, name, y[0], y[1], y[2]);
             }
-        } else {
-            if (np > 0) {       /* no error for empty lines */
+        }
+        else
+        {
+            if (np > 0)         /* no error for empty lines */
+            {
                 fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
             }
         }
