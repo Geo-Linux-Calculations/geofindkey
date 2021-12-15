@@ -1,7 +1,7 @@
 /*
 Name: geodeform500.c
-Version: 2.7
-Date: 2021-11-22
+Version: 2.8
+Date: 2021-12-15
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -57,7 +57,7 @@ C* 2748.8080 5314.0580 109.8550 2749.1000 5314.5570 110.5850
 #include <unistd.h>
 
 #define PNAME "GeoDeform500"
-#define PVERSION "2.7"
+#define PVERSION "2.8"
 
 #define defEps 0.000001
 #define defMode "CONST"

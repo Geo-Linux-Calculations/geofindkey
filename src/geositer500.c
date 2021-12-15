@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 2.7
-Date: 2021-11-22
+Version: 2.8
+Date: 2021-12-15
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -54,7 +54,7 @@ OKD-12 3.8890 288.39138889 133.60805556
 #include <unistd.h>
 
 #define PNAME "GeoSIter500"
-#define PVERSION "2.7"
+#define PVERSION "2.8"
 
 #define defREarth 6370009.0
 #define defUnits "DEG"
@@ -68,6 +68,7 @@ void geositer500usage()
 {
     fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
+    fprintf(stderr, "          -a N.N  atmospheric refractive index, default=0.0\n");
     fprintf(stderr, "          -d N    decimal after comma, default=4\n");
     fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
     fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
@@ -152,19 +153,22 @@ int main(int argc, char *argv[])
     FILE *fp0, *fp1;
 
     int opt;
-    double RE = defREarth;
     int decimals = 4;   /* number of decimals in the calculated coordinates */
+    double atmospheric = 0.0, RE = defREarth;
     int fhelp = 0;
     units = defUnits;
-    while ((opt = getopt(argc, argv, "d:r:u:h")) != -1)
+    while ((opt = getopt(argc, argv, "a:d:r:u:h")) != -1)
     {
         switch(opt)
         {
-        case 'h':
-            fhelp = 1;
+        case 'a':
+            atmospheric = atof(optarg);
             break;
         case 'd':
             decimals = atoi(optarg);
+            break;
+        case 'h':
+            fhelp = 1;
             break;
         case 'r':
             RE = atof(optarg);
@@ -247,7 +251,7 @@ int main(int argc, char *argv[])
                     j++;
                 }
                 x[1] = ANGLEtoRAD(x[1], units);
-                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
+                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE * (1.0 - atmospheric)) : 0.0;
                 x[2] = ANGLEtoRAD(x[2], units);
                 y[2] = x[0] * cos(x[1]);
                 x[0] *= sin(x[1]);
@@ -287,7 +291,7 @@ int main(int argc, char *argv[])
                     j++;
                 }
                 x[1] = ANGLEtoRAD(x[1], units);
-                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE) : 0.0;
+                x[1] -= (RE > 0.0) ? (x[0] * sin(x[1]) * 0.5 / RE * (1.0 - atmospheric)) : 0.0;
                 x[2] = ANGLEtoRAD(x[2], units);
                 y[2] = x[0] * cos(x[1]);
                 x[0] *= sin(x[1]);
