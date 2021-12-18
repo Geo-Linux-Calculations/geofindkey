@@ -1,7 +1,7 @@
 /*
 Name: geodeform500.c
-Version: 2.8
-Date: 2021-12-15
+Version: 2.9
+Date: 2021-12-19
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -30,6 +30,8 @@ C*            2748.808 5314.058 109.855
 *
 output file gpsout.dat:
 *
+Mean: 3
+M 2508.9040 5588.8650 124.2887 2508.7340 5589.0163 124.5183
 Deformation coordinate base: 3
 (CONST)
 A 2303.4430 5622.9030 149.3070 2302.8540 5623.2230 148.8560
@@ -57,7 +59,7 @@ C* 2748.8080 5314.0580 109.8550 2749.1000 5314.5570 110.5850
 #include <unistd.h>
 
 #define PNAME "GeoDeform500"
-#define PVERSION "2.8"
+#define PVERSION "2.9"
 
 #define defEps 0.000001
 #define defMode "CONST"
@@ -94,6 +96,8 @@ void geodeform500usage()
     fprintf(stderr, " C*            2748.808 5314.058 109.855\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "report-file(sample):\n");
+    fprintf(stderr, " Mean: 3\n");
+    fprintf(stderr, " M 2508.9040 5588.8650 124.2887 2508.7340 5589.0163 124.5183\n");
     fprintf(stderr, " Deformation coordinate base: 3\n");
     fprintf(stderr, " (CONST)\n");
     fprintf(stderr, " A 2303.4430 5622.9030 149.3070 2302.8540 5623.2230 148.8560\n");
@@ -116,7 +120,7 @@ void geodeform500usage()
 int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format4[128], format7[128];
-    double x[3], y[3], wgt, dy[3];
+    double x[3], y[3], xcp[3], ycp[3], wgt, dy[3];
     double xd[1500], dxd[1500], r2, r2d[500], w[500], s;
     unsigned n, i, j, k;
     int np;
@@ -175,6 +179,39 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    for (j = 0; j < 3; j++)
+    {
+        xcp[j] = 0.0;
+        ycp[j] = 0.0;
+    }
+    n = 0;
+    s = 0;
+    while (fgets(buf, 1024, fp0) != NULL)
+    {
+        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+        if (np >= 8)
+        {
+            for (i = 0; i < 3; i++)
+            {
+                xcp[i] += (x[i] * wgt);
+                ycp[i] += (y[i] * wgt);
+            }
+            s += wgt;
+            n++;
+        }
+    }
+    if (s > 0.0)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            xcp[j] /= s;
+            ycp[j] /= s;
+        }
+    }
+    fprintf(fp1, "Mean: %d\n", n);
+    fprintf(fp1, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
+    rewind(fp0);
+
     n = 0;
     for (j = 0; j < 1500; j++)
     {
@@ -192,7 +229,7 @@ int main(int argc, char *argv[])
                 for (i = 0; i < 3; i++)
                 {
                     xd[j + i] = x[i];
-                    dxd[j + i] = y[i] - x[i];
+                    dxd[j + i] = (y[i] - ycp[i]) - (x[i] - xcp[i]);
                     r2 += (dxd[i + j] * dxd[i + j]);
                 }
                 r2d[n] = r2 * wgt;
@@ -210,7 +247,7 @@ int main(int argc, char *argv[])
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
         if (np >= 4)
         {
-            s = 0;
+            s = 0.0;
             for (i = 0; i < n; i++)
             {
                 if (r2d[i] >= 0.0)
@@ -233,7 +270,7 @@ int main(int argc, char *argv[])
                     w[i] = 0.0;
                 }
             }
-            if (s > 0)
+            if (s > 0.0)
             {
                 s = 1.0 / s;
                 for (i = 0; i < n; i++)
@@ -249,7 +286,7 @@ int main(int argc, char *argv[])
                         dy[i] += dxd[k] * w[j];
                         k += 3;
                     }
-                    y[i] = x[i] + dy[i];
+                    y[i] = x[i] + dy[i] + (ycp[i] - xcp[i]);
                 }
             }
             else

@@ -14,13 +14,15 @@ REL           = 2
 PREFIX        = /usr/local
 INSTALL       = install
 LN            = ln -fs
+GROFF2PDF     = groff -m man -T pdf
+RM            = rm -f
 
 .PHONY: all clean install
 
 all: $(PROGS)
 
 clean:
-	rm -f $(PROGS)
+	$(RM) $(PROGS) man_*.pdf
 
 $(PROGNAME1): $(SRCS)/$(PROGNAME1).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
@@ -36,6 +38,23 @@ $(PROGNAME4): $(SRCS)/$(PROGNAME4).c
 
 $(PROGNAME5): $(SRCS)/$(PROGNAME5).c
 	$(CPP) $(CFLAGS) $^ -o $@ $(LIBS)
+
+manual: man_$(PROGNAME1).pdf man_$(PROGNAME2).pdf man_$(PROGNAME3).pdf man_$(PROGNAME4).pdf  man_$(PROGNAME5).pdf 
+
+man_$(PROGNAME1).pdf: man/man1/$(PROGNAME1).1
+	$(GROFF2PDF) $^ > $@
+
+man_$(PROGNAME2).pdf: man/man1/$(PROGNAME2).1
+	$(GROFF2PDF) $^ > $@
+
+man_$(PROGNAME3).pdf: man/man1/$(PROGNAME3).1
+	$(GROFF2PDF) $^ > $@
+
+man_$(PROGNAME4).pdf: man/man1/$(PROGNAME4).1
+	$(GROFF2PDF) $^ > $@
+
+man_$(PROGNAME5).pdf: man/man1/$(PROGNAME5).1
+	$(GROFF2PDF) $^ > $@
 
 install: $(PROGS)
 	$(INSTALL) -d $(PREFIX)/bin

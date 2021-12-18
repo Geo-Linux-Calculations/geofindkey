@@ -268,6 +268,8 @@ Exec finding unknown distances:
 
 Result gpsout.dat:
 ```
+Mean: 3
+M 2508.9040 5588.8650 124.2887 2508.7340 5589.0163 124.5183
 Deformation coordinate base: 3
 (CONST)
 A 2303.4430 5622.9030 149.3070 2302.8540 5623.2230 148.8560

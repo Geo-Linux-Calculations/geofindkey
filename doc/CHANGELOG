@@ -2,6 +2,22 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/Geo-Linux-Calculations/geofindkey
 
+2.9
+
+    use mean in coordinate deformation
+
+2.8
+
+    add atmospheric refractive index
+
+2.7
+
+    deformation of coordinates by the "unit spheres" method.
+
+2.6
+
+    rescale to sea level
+
 2.5
 
     dZ of radius Earth
