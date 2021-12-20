@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
-Version: 2.9
-Date: 2021-12-19
+Version: 3.0
+Date: 2021-12-20
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -55,7 +55,7 @@ OKD-12 -2.6721 2.5453 1.2270
 #include <unistd.h>
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "2.9"
+#define PVERSION "3.0"
 
 #define defREarth 6370009.0
 #define defUnits "DEG"

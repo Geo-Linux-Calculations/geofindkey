@@ -2,6 +2,11 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/Geo-Linux-Calculations/geofindkey
 
+3.0
+
+    add Helmert transform
+    (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
+
 2.9
 
     use mean in coordinate deformation

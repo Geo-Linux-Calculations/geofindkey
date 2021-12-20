@@ -1,7 +1,7 @@
 /*
 Name: geofindkey2p.c
-Version: 2.9
-Date: 2021-12-19
+Version: 3.0
+Date: 2021-12-20
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -23,7 +23,7 @@ input file doc/data.dat:
 *
 output file report.dat:
 *
-key:
+ey:
 --0-----
 82135.4060
 47128.1486
@@ -61,7 +61,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey2Pow"
-#define PVERSION "2.9"
+#define PVERSION "3.0"
 
 void geofindkey2ptitle()
 {
@@ -333,17 +333,20 @@ int main(int argc, char *argv[])
     }
     fprintf(fp1, "key:\n");
     fprintf(fp1, "--0-----\n");
-    fprintf(fp1, "%.4f\n", a[0][0]);
-    fprintf(fp1, "%.4f\n", a[0][1]);
-    fprintf(fp1, "%.4f\n", a[0][2]);
+    for (i = 0; i < 3; i++)
+    {
+        fprintf(fp1, "%.4f\n", a[0][i]);
+    }
     fprintf(fp1, "--1-----\n");
-    fprintf(fp1, "%.12f\n", a[1][0]);
-    fprintf(fp1, "%.12f\n", a[1][1]);
-    fprintf(fp1, "%.12f\n", a[1][2]);
+    for (i = 0; i < 3; i++)
+    {
+        fprintf(fp1, "%.12f\n", a[1][i]);
+    }
     fprintf(fp1, "--2-----\n");
-    fprintf(fp1, "%.12f\n", a[2][0]);
-    fprintf(fp1, "%.12f\n", a[2][1]);
-    fprintf(fp1, "%.12f\n", a[2][2]);
+    for (i = 0; i < 3; i++)
+    {
+        fprintf(fp1, "%.12f\n", a[2][i]);
+    }
     fprintf(fp1, "========\n");
     fprintf(fp1, "%.12f\n", scale);
     fprintf(fp1, "%+.10f\n", rotation * 180.0 / M_PI);
@@ -377,11 +380,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                for (i = 0; i < 3; i++)
-                {
-                    y[i] = z[i];
-                }
-                fprintf(fp1, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
+                fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
             }
         }
         else

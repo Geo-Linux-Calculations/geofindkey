@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 2.9
-Date: 2021-12-19
+Version: 3.0
+Date: 2021-12-20
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -62,7 +62,7 @@ diff:
 #include <unistd.h>
 
 #define PNAME "GeoFindKey"
-#define PVERSION "2.9"
+#define PVERSION "3.0"
 
 #define defMScale "NORM"
 #define defREarth 6370009.0
@@ -133,8 +133,8 @@ int IndexMScale(char* mscale)
 
 int main(int argc, char *argv[])
 {
-    char buf[1024], name[32], format5[128], format7[128], format13[128];
-    double x[3], y[3], z[3], wgt, n;
+    char buf[1024], name[128], format5[128], format7[128], format13[128];
+    double x[3], y[3], z[3], wgt, wgts, n;
     double xc[4], yc[4];
     double dx[3], dy[3], dz[3], vdz[3];
     double a[2][3], scale, rotation, ay, az, da, say, saz, ds;
@@ -216,13 +216,13 @@ int main(int argc, char *argv[])
             s[3] += y[0] * wgt;
             s[4] += y[1] * wgt;
             s[5] += y[2] * wgt;
-            s[6] += wgt;
+            wgts += wgt;
             n++;
             xc[3] += (x[0] * x[0] + x[1] * x[1]) * wgt;
             yc[3] += (x[2] * x[2]) * wgt;
         }
     }
-    n = (s[6] > 0.0) ? s[6] : n;
+    n = (wgts > 0.0) ? wgts : n;
     if (n > 0.0)
     {
         xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
@@ -342,13 +342,15 @@ int main(int argc, char *argv[])
     fprintf(fp1, "key:\n");
     fprintf(fp1, "(%s)\n", mscale);
     fprintf(fp1, "--0-----\n");
-    fprintf(fp1, "%.4f\n", a[0][0]);
-    fprintf(fp1, "%.4f\n", a[0][1]);
-    fprintf(fp1, "%.4f\n", a[0][2]);
+    for (i = 0; i < 3; i++)
+    {
+        fprintf(fp1, "%.4f\n", a[0][i]);
+    }
     fprintf(fp1, "--1-----\n");
-    fprintf(fp1, "%.12f\n", a[1][0]);
-    fprintf(fp1, "%.12f\n", a[1][1]);
-    fprintf(fp1, "%.12f\n", a[1][2]);
+    for (i = 0; i < 3; i++)
+    {
+        fprintf(fp1, "%.12f\n", a[1][i]);
+    }
     fprintf(fp1, "========\n");
     fprintf(fp1, "%.12f\n", scale);
     fprintf(fp1, "%+.10f\n", rotation * 180.0 / M_PI);
@@ -406,11 +408,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                for (i = 0; i < 3; i++)
-                {
-                    y[i] = z[i];
-                }
-                fprintf(fp1, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
+                fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
             }
         }
         else
