@@ -1,7 +1,7 @@
 /*
 Name: geoconformal.c
 (use Gauss normalize @zvezdochiot[https://geodesist.ru/members/zvezdochiot.47244/])
-(use PQ-shema by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
+(use PQ-scheme by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
 (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
 (use Gnumeric OLS spreadsheets [https://github.com/Geo-Linux-Calculations/gnumeric-ols])
 Version: 3.1
@@ -70,6 +70,62 @@ key(0):
  1.71236306923e-28
  2.34991032411e-27
 Decentralize:
+key:
+ --0--:
+ 2541558.8451
+ -3690045.9985
+ --1--:
+ 0.0541190506137
+ 4.4654307921
+ --2--:
+ 3.54407510072e-07
+ -2.03772176325e-06
+ --3--:
+ -4.85117887654e-14
+ 4.63609637196e-13
+ --4--:
+ 1.0287260806e-21
+ -5.24136027545e-20
+ --5--:
+ 1.71236306923e-28
+ 2.34991032411e-27
+
+Elevation (H):
+key:
+ --0--:
+ 10.0000
+ --1--:
+ 1
+
+var:
+N-030E-030 4401251.5306 385234.1576 1.0000 6179000.0000 626000.0000 11.0000 1 +0.0000 -0.0000 +0.0000
+N-020E-020 4410870.6778 395053.1446 2.0000 6189000.0000 636000.0000 12.0000 1 -0.0000 +0.0000 +0.0000
+N-020E+020 4410435.8603 433933.8030 3.0000 6189000.0000 676000.0000 13.0000 1 +0.0000 +0.0000 +0.0000
+N-015E-015 4415680.0474 399965.2333 4.0000 6194000.0000 641000.0000 14.0000 1 -0.0000 +0.0000 +0.0000
+N-015E+015 4415353.5779 429130.8944 5.0000 6194000.0000 671000.0000 15.0000 1 -0.0000 -0.0000 +0.0000
+N-005E-005 4425298.3986 409794.5815 6.0000 6204000.0000 651000.0000 16.0000 1 -0.0000 +0.0000 +0.0000
+N-005E+005 4425189.3379 419519.9054 7.0000 6204000.0000 661000.0000 17.0000 1 -0.0000 -0.0000 +0.0000
+N+000E+000 4430107.3882 414711.8331 8.0000 6209000.0000 656000.0000 18.0000 1 +0.0000 -0.0000 +0.0000
+N+005E-005 4435025.5571 409902.0477 9.0000 6214000.0000 651000.0000 19.0000 1 +0.0000 +0.0000 +0.0000
+N+005E+005 4434916.2591 419630.7979 10.0000 6214000.0000 661000.0000 20.0000 1 +0.0000 -0.0000 +0.0000
+N+015E-015 4444862.2666 400277.3533 11.0000 6224000.0000 641000.0000 21.0000 1 +0.0000 +0.0000 +0.0000
+N+015E+015 4444533.6610 429473.8515 12.0000 6224000.0000 671000.0000 22.0000 1 +0.0000 -0.0000 +0.0000
+N+020E-020 4449780.8151 395462.4524 13.0000 6229000.0000 636000.0000 23.0000 1 -0.0000 -0.0000 +0.0000
+N+020E+020 4449342.2001 434397.9324 14.0000 6229000.0000 676000.0000 24.0000 1 -0.0000 -0.0000 +0.0000
+N+030E+030 4458958.9750 444251.1830 15.0000 6239000.0000 686000.0000 25.0000 1 -0.0000 +0.0000 +0.0000
+N-030E+030 4400600.7308 443534.4286 16.0000 6179000.0003 686000.0003 26.0000
+N-025E-025 4406061.1735 390142.7848 17.0000 6184000.0000 631000.0000 27.0000
+N-025E+025 4405518.2459 438734.9824 18.0000 6184000.0001 681000.0001 28.0000
+N-010E-010 4420489.2863 404879.0469 19.0000 6199000.0000 646000.0000 29.0000
+N-010E+010 4420271.4025 424326.2605 20.0000 6199000.0000 666000.0000 30.0000
+N+010E-010 4439943.8486 405090.5530 21.0000 6219000.0000 646000.0000 31.0000
+N+010E+010 4439725.0154 424551.4720 22.0000 6219000.0000 666000.0000 32.0000
+N+025E-025 4454699.4979 390645.8545 23.0000 6233999.9999 630999.9999 33.0000
+N+025E+025 4454150.6368 439323.7109 24.0000 6234000.0000 681000.0000 34.0000
+N+030E-030 4459618.3192 385827.5635 25.0000 6238999.9997 625999.9997 35.0000
+
+diff:
+0.0000 0.0000 0.0000
 *
 */
 
@@ -144,16 +200,71 @@ void geoconformalusage()
     fprintf(stderr, "  1.71236306923e-28\n");
     fprintf(stderr, "  2.34991032411e-27\n");
     fprintf(stderr, " Decentralize:\n");
+    fprintf(stderr, " key:\n");
+    fprintf(stderr, "  --0--:\n");
+    fprintf(stderr, "  2541558.8451\n");
+    fprintf(stderr, "  -3690045.9985\n");
+    fprintf(stderr, "  --1--:\n");
+    fprintf(stderr, "  0.0541190506137\n");
+    fprintf(stderr, "  4.4654307921\n");
+    fprintf(stderr, "  --2--:\n");
+    fprintf(stderr, "  3.54407510072e-07\n");
+    fprintf(stderr, "  -2.03772176325e-06\n");
+    fprintf(stderr, "  --3--:\n");
+    fprintf(stderr, "  -4.85117887654e-14\n");
+    fprintf(stderr, "  4.63609637196e-13\n");
+    fprintf(stderr, "  --4--:\n");
+    fprintf(stderr, "  1.0287260806e-21\n");
+    fprintf(stderr, "  -5.24136027545e-20\n");
+    fprintf(stderr, "  --5--:\n");
+    fprintf(stderr, "  1.71236306923e-28\n");
+    fprintf(stderr, "  2.34991032411e-27\n");
+    fprintf(stderr, " \n");
+    fprintf(stderr, " Elevation (H):\n");
+    fprintf(stderr, " key:\n");
+    fprintf(stderr, "  --0--:\n");
+    fprintf(stderr, "  10.0000\n");
+    fprintf(stderr, "  --1--:\n");
+    fprintf(stderr, "  1\n");
+    fprintf(stderr, " \n");
+    fprintf(stderr, " var:\n");
+    fprintf(stderr, " N-030E-030 4401251.5306 385234.1576 1.0000 6179000.0000 626000.0000 11.0000 1 +0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N-020E-020 4410870.6778 395053.1446 2.0000 6189000.0000 636000.0000 12.0000 1 -0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N-020E+020 4410435.8603 433933.8030 3.0000 6189000.0000 676000.0000 13.0000 1 +0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N-015E-015 4415680.0474 399965.2333 4.0000 6194000.0000 641000.0000 14.0000 1 -0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N-015E+015 4415353.5779 429130.8944 5.0000 6194000.0000 671000.0000 15.0000 1 -0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N-005E-005 4425298.3986 409794.5815 6.0000 6204000.0000 651000.0000 16.0000 1 -0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N-005E+005 4425189.3379 419519.9054 7.0000 6204000.0000 661000.0000 17.0000 1 -0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+000E+000 4430107.3882 414711.8331 8.0000 6209000.0000 656000.0000 18.0000 1 +0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+005E-005 4435025.5571 409902.0477 9.0000 6214000.0000 651000.0000 19.0000 1 +0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N+005E+005 4434916.2591 419630.7979 10.0000 6214000.0000 661000.0000 20.0000 1 +0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+015E-015 4444862.2666 400277.3533 11.0000 6224000.0000 641000.0000 21.0000 1 +0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N+015E+015 4444533.6610 429473.8515 12.0000 6224000.0000 671000.0000 22.0000 1 +0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+020E-020 4449780.8151 395462.4524 13.0000 6229000.0000 636000.0000 23.0000 1 -0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+020E+020 4449342.2001 434397.9324 14.0000 6229000.0000 676000.0000 24.0000 1 -0.0000 -0.0000 +0.0000\n");
+    fprintf(stderr, " N+030E+030 4458958.9750 444251.1830 15.0000 6239000.0000 686000.0000 25.0000 1 -0.0000 +0.0000 +0.0000\n");
+    fprintf(stderr, " N-030E+030 4400600.7308 443534.4286 16.0000 6179000.0003 686000.0003 26.0000\n");
+    fprintf(stderr, " N-025E-025 4406061.1735 390142.7848 17.0000 6184000.0000 631000.0000 27.0000\n");
+    fprintf(stderr, " N-025E+025 4405518.2459 438734.9824 18.0000 6184000.0001 681000.0001 28.0000\n");
+    fprintf(stderr, " N-010E-010 4420489.2863 404879.0469 19.0000 6199000.0000 646000.0000 29.0000\n");
+    fprintf(stderr, " N-010E+010 4420271.4025 424326.2605 20.0000 6199000.0000 666000.0000 30.0000\n");
+    fprintf(stderr, " N+010E-010 4439943.8486 405090.5530 21.0000 6219000.0000 646000.0000 31.0000\n");
+    fprintf(stderr, " N+010E+010 4439725.0154 424551.4720 22.0000 6219000.0000 666000.0000 32.0000\n");
+    fprintf(stderr, " N+025E-025 4454699.4979 390645.8545 23.0000 6233999.9999 630999.9999 33.0000\n");
+    fprintf(stderr, " N+025E+025 4454150.6368 439323.7109 24.0000 6234000.0000 681000.0000 34.0000\n");
+    fprintf(stderr, " N+030E-030 4459618.3192 385827.5635 25.0000 6238999.9997 625999.9997 35.0000\n");
+    fprintf(stderr, " \n");
+    fprintf(stderr, " diff:\n");
+    fprintf(stderr, " 0.0000 0.0000 0.0000\n");
 }
 
 int main(int argc, char *argv[])
 {
     char buf[1024], name[128], format1[128], format3[128], format7[128], format11[128];
     double x[3], y[3], z[3], xcp[3], ycp[3], xs[3], dz[3], wgt, wgts, n, gnorm[3];
-    double *pq, *gmat, *gvec, *gparam, condg, t;
-
+    double *pq, *gmat, *gvec, *gparam, *aparam, eparam[2], condg, t;
     unsigned i, j, k, l, m;
-    int np;
+    int np, *dck;
     FILE *fpin, *fpout;
 
     int opt;
@@ -243,6 +354,8 @@ int main(int argc, char *argv[])
         gmat = (double *)malloc(4 * npow * npow * sizeof(double));
         gvec = (double *)malloc(2 * npow * sizeof(double));
         gparam = (double *)malloc(2 * npow * sizeof(double));
+        aparam = (double *)malloc(2 * npow * sizeof(double));
+        dck = (int *)malloc(2 * npow * sizeof(int));
 
         n = (wgts > 0.0) ? wgts : n;
         for (j = 0; j < 3; j++)
@@ -269,11 +382,17 @@ int main(int argc, char *argv[])
         for (j = 0; j < 2 * npow; j++)
         {
             gvec[j] = 0.0;
+            gparam[j] = 0.0;
+            aparam[j] = 0.0;
+            pq[j] = 0.0;
+            dck[j] = 0;
         }
         for (j = 0; j < 3; j++)
         {
             xs[j] = 0.0;
         }
+        eparam[0] = 0.0;
+        eparam[1] = 0.0;
         while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -285,7 +404,9 @@ int main(int argc, char *argv[])
                     xs[i] = (x[i] * x[i] * wgt);
                     y[i] = gaussnorm(y[i], ycp[i], gnorm[i]);
                 }
-                /* PQ-shema by Alexander Starostin aka @stout */
+                eparam[0] += (x[2] * x[2] * wgt);
+                eparam[1] += (x[2] * y[2] * wgt);
+                /* PQ-scheme by Alexander Starostin aka @stout */
                 pq[0] = 1.0;
                 pq[npow] = 0.0;
                 for (i = 1; i < npow; i++)
@@ -350,16 +471,135 @@ int main(int argc, char *argv[])
             }
             /* Decentralize params */
             fprintf(fpout, "Decentralize:\n");
+            /* PQ-scheme by Alexander Starostin aka @stout */
+            pq[0] = 1.0;
+            pq[npow] = 0.0;
+            dck[0] = 1;
+            dck[npow] = 1;
+            for (i = 1; i < npow; i++)
+            {
+                j = i + npow;
+                pq[i] = pq[i - 1] * xcp[0] - pq[j - 1] * xcp[1];
+                pq[j] = pq[i - 1] * xcp[1] + pq[j - 1] * xcp[0];
+                dck[i] = -dck[i - 1];
+            }
+            for (i = 0; i < npow; i++)
+            {
+                for(j = 1; j < npow - i; j++)
+                {
+                    dck[npow + j] += dck[npow + j - 1];
+                }
+                k = 2 * i;
+                for(j = 0; j < npow - i; j++)
+                {
+                    l = 2 * (i + j);
+                    t = dck[j] * dck[npow + j];
+                    aparam[k] += (t * (gparam[l] * pq[j] - gparam[l + 1] * pq[npow + j]));
+                    aparam[k + 1] += (t * (gparam[l] * pq[npow + j] + gparam[l + 1] * pq[j]));
+                }
+            }
+            fprintf(fpout, "key:\n");
+            fprintf(fpout, " --0--:\n");
+            fprintf(fpout, format1, aparam[0]);
+            fprintf(fpout, format1, aparam[1]);
+            for (i = 1; i < npow; i++)
+            {
+                fprintf(fpout, " --%d--:\n", i);
+                j = 2 * i;
+                fprintf(fpout, " %.12g\n", aparam[j]);
+                fprintf(fpout, " %.12g\n", aparam[j + 1]);
+            }
+            fprintf(fpout, "\n");
+            eparam[1] = ((eparam[0] > 0.0) && (npow > 1)) ? (eparam[1] / eparam[0]) : 0.0;
+            eparam[0] = ycp[2] - eparam[1] * xcp[2];
+            fprintf(fpout, "Elevation (H):\n");
+            fprintf(fpout, "key:\n");
+            fprintf(fpout, " --0--:\n");
+            fprintf(fpout, format1, eparam[0]);
+            if (npow > 1)
+            {
+                fprintf(fpout, " --1--:\n");
+                fprintf(fpout, " %.12g\n", eparam[1]);
+            }
+            fprintf(fpout, "\n");
 
+            for (j = 0; j < 3; j++)
+            {
+                xs[j] = 0.0;
+            }
+            fprintf(fpout, "var:\n");
+            while (fgets(buf, 1024, fpin) != NULL)
+            {
+                np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+                if (np >= 4)
+                {
+                    /* PQ-scheme by Alexander Starostin aka @stout */
+                    pq[0] = 1.0;
+                    pq[npow] = 0.0;
+                    for (i = 1; i < npow; i++)
+                    {
+                        j = i + npow;
+                        pq[i] = pq[i - 1] * x[0] - pq[j - 1] * x[1];
+                        pq[j] = pq[i - 1] * x[1] + pq[j - 1] * x[0];
+                    }
+                    z[0] = 0.0;
+                    z[1] = 0.0;
+                    z[2] = eparam[0] + eparam[1] * x[2];
+                    for (i = 0; i < npow; i++)
+                    {
+                        j = i + npow;
+                        k = 2 * i;
+                        z[0] += (pq[i] * aparam[k] - pq[j] * aparam[k + 1]);
+                        z[1] += (pq[i] * aparam[k + 1] + pq[j] * aparam[k]);
+                    }
+                    if (np >= 8)
+                    {
+                        for (i = 0; i < 3; i++)
+                        {
+                            dz[i] = z[i] - y[i];
+                            xs[i] += (dz[i] * dz[i]) * wgt;
+                        }
+                        fprintf(fpout, format11, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, dz[0], dz[1], dz[2]);
+                    }
+                    else
+                    {
+                        fprintf(fpout, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+                    }
+                }
+                else
+                {
+                    if (np > 0)         /* no error for empty lines */
+                    {
+                        fprintf(stderr, "Error in input, line skipped: \n%s\n", buf);
+                    }
+                }
+            }
+            if (n > 0.0)
+            {
+                for (i = 0; i < 3; i++)
+                {
+                    xs[i] /= n;
+                }
+            }
+            for (i = 0; i < 3; i++)
+            {
+                xs[i] *= 2.0;
+                xs[i] = sqrt(xs[i]);
+            }
+            fprintf(fpout, "\n");
+            fprintf(fpout, "diff:\n");
+            fprintf(fpout, format3, xs[0], xs[1], xs[2]);
         }
         else
         {
             fprintf(fpout, "The calculation is wrong! Reduce the conversion power!\n");
         }
-
+        free(pq);
         free(gmat);
         free(gvec);
         free(gparam);
+        free(aparam);
+        free(dck);
     }
     else
     {

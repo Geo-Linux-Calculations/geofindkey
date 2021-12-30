@@ -2,11 +2,11 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/Geo-Linux-Calculations/geofindkey
 
-prebuild 3.1
+3.1
 
     add Conformal transform (N power).
     (use Gauss normalize @zvezdochiot[https://geodesist.ru/members/zvezdochiot.47244/])
-    (use PQ-shema by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
+    (use PQ-scheme by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
     (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
     (use Gnumeric OLS spreadsheets [https://github.com/Geo-Linux-Calculations/gnumeric-ols])
 

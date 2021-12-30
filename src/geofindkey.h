@@ -2,7 +2,7 @@
 Name: geofinkey.h
 Default params and functions.
 (use Gauss normalize @zvezdochiot[https://geodesist.ru/members/zvezdochiot.47244/])
-(use PQ-shema by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
+(use PQ-scheme by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
 (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
 (use Gnumeric OLS spreadsheets [https://github.com/Geo-Linux-Calculations/gnumeric-ols])
 Version: 3.1
@@ -31,7 +31,7 @@ Author: Zoltan Siki (https://github.com/zsiki)
 #define defMScale "NORM"
 #define defEps 0.000001
 #define defPOW -1
-#define maxPOW 256
+#define maxPOW 127
 
 /*
 Gauss normalize variable

@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
                         if (!strcmp(mbase,"VAR"))
                             w[i] = r2d[i] / r2;
                         else
-                            w[i] = 1.0 / r2;                        
+                            w[i] = 1.0 / r2;
                         s += w[i];
                     }
                     else
