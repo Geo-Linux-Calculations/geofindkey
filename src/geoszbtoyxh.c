@@ -1,7 +1,7 @@
 /*
 Name: geoszbtoyxh.c
-Version: 3.0
-Date: 2021-12-20
+Version: 3.1
+Date: 2021-12-30
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -48,17 +48,9 @@ OKD-12 -2.6721 2.5453 1.2270
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
+#include "geofindkey.h"
 
 #define PNAME "GeoSZBtoYXH"
-#define PVERSION "3.0"
-
-#define defREarth 6370009.0
-#define defUnits "DEG"
 
 void geoszbtoyxhtitle()
 {
@@ -69,10 +61,10 @@ void geoszbtoyxhusage()
 {
     fprintf(stderr, "usage: geoszbtoyxh [option] [input-file [report-file]]\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "          -a N.N  atmospheric refractive index, default=0.0\n");
-    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
-    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
+    fprintf(stderr, "          -a N.N  atmospheric refractive index, default=%g\n", defKAtm);
+    fprintf(stderr, "          -d N    decimal after comma, default=%d\n", defDecimals);
+    fprintf(stderr, "          -r N.N  radius Earth, default=%g\n", defREarth);
+    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=%s\n", defUnits);
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -148,11 +140,11 @@ int main(int argc, char *argv[])
     double x[3], y[3], z[3];
     char* units;
     int np;
-    FILE *fp0, *fp1;
+    FILE *fpin, *fpout;
 
     int opt;
-    int decimals = 4;   /* number of decimals in the calculated coordinates */
-    double atmospheric = 0.0, RE = defREarth;
+    int decimals = defDecimals;   /* number of decimals in the calculated coordinates */
+    double atmospheric = defKAtm, RE = defREarth;
     int fhelp = 0;  /* default no help*/
     units = defUnits;
     while ((opt = getopt(argc, argv, "a:d:r:u:h")) != -1)
@@ -199,7 +191,7 @@ int main(int argc, char *argv[])
 
     if (argc > optind)
     {
-        if ((fp0 = fopen(argv[optind], "r")) == NULL)
+        if ((fpin = fopen(argv[optind], "r")) == NULL)
         {
             fprintf(stderr, "can't open %s\n", argv[1]);
             exit(EXIT_FAILURE);
@@ -207,11 +199,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-        fp0 = stdin;    /* use standard input if no file given */
+        fpin = stdin;    /* use standard input if no file given */
     }
     if (argc > optind+1)
     {
-        if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+        if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
         {
             fprintf(stderr, "can't create %s\n", argv[2]);
             exit(EXIT_FAILURE);
@@ -219,10 +211,10 @@ int main(int argc, char *argv[])
     }
     else
     {
-        fp1 = stdout;   /* use standard output if no file given */
+        fpout = stdout;   /* use standard output if no file given */
     }
 
-    while (fgets(buf, 1024, fp0) != NULL)
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf",
                     name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
@@ -237,11 +229,11 @@ int main(int argc, char *argv[])
             y[1] = x[0] * cos(x[2]);
             if (np >= 7)
             {
-                fprintf(fp1, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
+                fprintf(fpout, format7, name, y[0], y[1], y[2], z[0], z[1], z[2]);
             }
             else
             {
-                fprintf(fp1, format4, name, y[0], y[1], y[2]);
+                fprintf(fpout, format4, name, y[0], y[1], y[2]);
             }
         }
         else
@@ -252,8 +244,8 @@ int main(int argc, char *argv[])
             }
         }
     }
-    fclose(fp1);
-    fclose(fp0);
+    fclose(fpout);
+    fclose(fpin);
 
     return 0;
 }

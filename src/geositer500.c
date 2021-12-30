@@ -1,7 +1,7 @@
 /*
 Name: geositer500.c
-Version: 3.0
-Date: 2021-12-20
+Version: 3.1
+Date: 2021-12-30
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
 *
@@ -47,17 +47,9 @@ OKD-12 3.8890 288.39138889 133.60805556
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
+#include "geofindkey.h"
 
 #define PNAME "GeoSIter500"
-#define PVERSION "3.0"
-
-#define defREarth 6370009.0
-#define defUnits "DEG"
 
 void geositer500title()
 {
@@ -68,10 +60,10 @@ void geositer500usage()
 {
     fprintf(stderr, "usage: geositer500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "          -a N.N  atmospheric refractive index, default=0.0\n");
-    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
-    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
+    fprintf(stderr, "          -a N.N  atmospheric refractive index, default=%g\n", defKAtm);
+    fprintf(stderr, "          -d N    decimal after comma, default=%d\n", defDecimals);
+    fprintf(stderr, "          -r N.N  radius Earth, default=%g\n", defREarth);
+    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=%s\n", defUnits);
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -150,11 +142,11 @@ int main(int argc, char *argv[])
     unsigned n, i, j, k;
     char* units;
     int np;
-    FILE *fp0, *fp1;
+    FILE *fpin, *fpout;
 
     int opt;
-    int decimals = 4;   /* number of decimals in the calculated coordinates */
-    double atmospheric = 0.0, RE = defREarth;
+    int decimals = defDecimals;   /* number of decimals in the calculated coordinates */
+    double atmospheric = defKAtm, RE = defREarth;
     int fhelp = 0;
     units = defUnits;
     while ((opt = getopt(argc, argv, "a:d:r:u:h")) != -1)
@@ -197,12 +189,12 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    if ((fp0 = fopen(argv[optind], "r")) == NULL)
+    if ((fpin = fopen(argv[optind], "r")) == NULL)
     {
         fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+    if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
     {
         fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
@@ -213,7 +205,7 @@ int main(int argc, char *argv[])
     {
         siter[j] = 1.0;
     }
-    while (fgets(buf, 1024, fp0) != NULL)
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
         if (np >= 7)
@@ -224,9 +216,9 @@ int main(int argc, char *argv[])
             }
         }
     }
-    printf("Unknow distance: %d\n", n);
-    rewind(fp0);
+    rewind(fpin);
 
+    printf("Unknow distance: %d\n", n);
     thres = 1.0;
     sds = 0.0;
     k = 0;
@@ -240,7 +232,7 @@ int main(int argc, char *argv[])
         }
         n = 0;
         j = 0;
-        while (fgets(buf, 1024, fp0) != NULL)
+        while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
             if (np >= 7)
@@ -273,14 +265,14 @@ int main(int argc, char *argv[])
                 zc[i] /= n;
             }
         }
-        rewind(fp0);
+        rewind(fpin);
 
         for (i = 0; i < 6; i++)
         {
             s[i] = 0;
         }
         j = 0;
-        while (fgets(buf, 1024, fp0) != NULL)
+        while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
             if (np >= 7)
@@ -321,7 +313,7 @@ int main(int argc, char *argv[])
             a[0] /= n;
             a[1] /= n;
         }
-        rewind(fp0);
+        rewind(fpin);
         dz[0] = a[0] * yc[0] - a[1] * yc[1];
         dz[1] = a[1] * yc[0] + a[0] * yc[1];
         yc[0] = dz[0];
@@ -329,7 +321,7 @@ int main(int argc, char *argv[])
 
         j = 0;
         sds = 0;
-        while (fgets(buf, 1024, fp0) != NULL)
+        while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
             if (np >= 7)
@@ -358,12 +350,12 @@ int main(int argc, char *argv[])
         }
         k++;
         printf("Iter: %d, sum ds: %.11f\n", k, sds);
-        rewind(fp0);
+        rewind(fpin);
         thres = (thres > 0.0) ? thres : (sds * 2.0);
     }
 
     j = 0;
-    while (fgets(buf, 1024, fp0) != NULL)
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf ", name, &x[0], &x[1], &x[2], &z[0], &z[1], &z[2]);
         if (np >= 4)
@@ -375,11 +367,11 @@ int main(int argc, char *argv[])
                     x[0] = siter[j];
                     j++;
                 }
-                fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+                fprintf(fpout, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
             }
             else
             {
-                fprintf(fp1, format4, name, x[0], x[1], x[2]);
+                fprintf(fpout, format4, name, x[0], x[1], x[2]);
             }
         }
         else
@@ -390,8 +382,8 @@ int main(int argc, char *argv[])
             }
         }
     }
-    fclose(fp1);
-    fclose(fp0);
+    fclose(fpout);
+    fclose(fpin);
 
     return 0;
 }

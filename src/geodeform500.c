@@ -1,7 +1,7 @@
 /*
 Name: geodeform500.c
-Version: 3.0
-Date: 2021-12-20
+Version: 3.1
+Date: 2021-12-30
 Author: zvezdochiot (https://github.com/zvezdochiot)
 *
 build:
@@ -52,17 +52,9 @@ C* 2748.8080 5314.0580 109.8550 2749.1000 5314.5570 110.5850
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
+#include "geofindkey.h"
 
 #define PNAME "GeoDeform500"
-#define PVERSION "3.0"
-
-#define defEps 0.000001
-#define defMode "CONST"
 
 void geodeform500title()
 {
@@ -73,9 +65,9 @@ void geodeform500usage()
 {
     fprintf(stderr, "usage: geodeform500 [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -e N.N  eps, default=0.000001\n");
-    fprintf(stderr, "          -m str  base mode {CONST,VAR}, default=CONST\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=%d\n", defDecimals);
+    fprintf(stderr, "          -e N.N  eps, default=%g\n", defEps);
+    fprintf(stderr, "          -m str  base mode {CONST,VAR}, default=%s\n", defMode);
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -121,15 +113,15 @@ int main(int argc, char *argv[])
 {
     char buf[1024], name[32], format4[128], format7[128];
     double x[3], y[3], xcp[3], ycp[3], wgt, dy[3];
-    double xd[1500], dxd[1500], r2, r2d[500], w[500], s;
+    double xd[1500], dxd[1500], r2, r2d[500], w[500], wgts, s;
     unsigned n, i, j, k;
     int np;
-    FILE *fp0, *fp1;
+    FILE *fpin, *fpout;
 
     int opt;
     double eps = defEps;
     char* mbase = defMode;
-    int decimals = 4;   /* number of decimals in the calculated coordinates */
+    int decimals = defDecimals;   /* number of decimals in the calculated coordinates */
     int fhelp = 0;
     while ((opt = getopt(argc, argv, "d:e:m:h")) != -1)
     {
@@ -168,12 +160,12 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    if ((fp0 = fopen(argv[optind], "r")) == NULL)
+    if ((fpin = fopen(argv[optind], "r")) == NULL)
     {
         fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+    if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
     {
         fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
@@ -185,8 +177,8 @@ int main(int argc, char *argv[])
         ycp[j] = 0.0;
     }
     n = 0;
-    s = 0;
-    while (fgets(buf, 1024, fp0) != NULL)
+    wgts = 0;
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
         if (np >= 8)
@@ -196,118 +188,121 @@ int main(int argc, char *argv[])
                 xcp[i] += (x[i] * wgt);
                 ycp[i] += (y[i] * wgt);
             }
-            s += wgt;
+            wgts += wgt;
             n++;
         }
     }
-    if (s > 0.0)
+    if (n > 0.0)
     {
+        n = (wgts > 0.0) ? wgts : n;
         for (j = 0; j < 3; j++)
         {
-            xcp[j] /= s;
-            ycp[j] /= s;
+            xcp[j] /= n;
+            ycp[j] /= n;
         }
-    }
-    fprintf(fp1, "Mean: %d\n", n);
-    fprintf(fp1, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
-    rewind(fp0);
+        fprintf(fpout, "Mean: %d\n", n);
+        fprintf(fpout, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
+        rewind(fpin);
 
-    n = 0;
-    for (j = 0; j < 1500; j++)
-    {
-        xd[j] = 0.0;
-    }
-    while (fgets(buf, 1024, fp0) != NULL)
-    {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        if (np >= 8)
+        for (j = 0; j < 1500; j++)
         {
-            if ((n < 499) && (wgt > 0.0))
+            xd[j] = 0.0;
+        }
+        while (fgets(buf, 1024, fpin) != NULL)
+        {
+            np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+            if (np >= 8)
             {
-                j = 3 * n;
-                r2 = eps * eps;
-                for (i = 0; i < 3; i++)
+                if ((n < 499) && (wgt > 0.0))
                 {
-                    xd[j + i] = x[i];
-                    dxd[j + i] = (y[i] - ycp[i]) - (x[i] - xcp[i]);
-                    r2 += (dxd[i + j] * dxd[i + j]);
+                    j = 3 * n;
+                    r2 = eps * eps;
+                    for (i = 0; i < 3; i++)
+                    {
+                        xd[j + i] = x[i];
+                        dxd[j + i] = (y[i] - ycp[i]) - (x[i] - xcp[i]);
+                        r2 += (dxd[i + j] * dxd[i + j]);
+                    }
+                    r2d[n] = r2 * wgt;
                 }
-                r2d[n] = r2 * wgt;
-                n++;
             }
         }
-    }
-    fprintf(fp1, "Deformation coordinate base: %d\n", n);
-    fprintf(fp1, "(%s)\n", mbase);
-    rewind(fp0);
+        fprintf(fpout, "Deformation coordinate base: %d\n", n);
+        fprintf(fpout, "(%s)\n", mbase);
+        rewind(fpin);
 
-    j = 0;
-    while (fgets(buf, 1024, fp0) != NULL)
-    {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        if (np >= 4)
+        j = 0;
+        while (fgets(buf, 1024, fpin) != NULL)
         {
-            s = 0.0;
-            for (i = 0; i < n; i++)
+            np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+            if (np >= 4)
             {
-                if (r2d[i] >= 0.0)
+                s = 0.0;
+                for (i = 0; i < n; i++)
                 {
-                    j = 3 * i;
-                    r2 = r2d[i];
-                    for (k = 0; k < 3; k++)
+                    if (r2d[i] >= 0.0)
                     {
-                        dy[k] = xd[j + k] - x[k];
-                        r2 += (dy[k] * dy[k]);
+                        j = 3 * i;
+                        r2 = r2d[i];
+                        for (k = 0; k < 3; k++)
+                        {
+                            dy[k] = xd[j + k] - x[k];
+                            r2 += (dy[k] * dy[k]);
+                        }
+                        if (!strcmp(mbase,"VAR"))
+                            w[i] = r2d[i] / r2;
+                        else
+                            w[i] = 1.0 / r2;                        
+                        s += w[i];
                     }
-                    if (!strcmp(mbase,"VAR"))
-                        w[i] = r2d[i] / r2;
                     else
-                        w[i] = 1.0 / r2;                        
-                    s += w[i];
+                    {
+                        w[i] = 0.0;
+                    }
+                }
+                if (s > 0.0)
+                {
+                    s = 1.0 / s;
+                    for (i = 0; i < n; i++)
+                    {
+                        w[i] *= s;
+                    }
+                    for (i = 0; i < 3; i++)
+                    {
+                        k = i;
+                        dy[i] = 0;
+                        for (j = 0; j < n; j++)
+                        {
+                            dy[i] += dxd[k] * w[j];
+                            k += 3;
+                        }
+                        y[i] = x[i] + dy[i] + (ycp[i] - xcp[i]);
+                    }
                 }
                 else
                 {
-                    w[i] = 0.0;
-                }
-            }
-            if (s > 0.0)
-            {
-                s = 1.0 / s;
-                for (i = 0; i < n; i++)
-                {
-                    w[i] *= s;
-                }
-                for (i = 0; i < 3; i++)
-                {
-                    k = i;
-                    dy[i] = 0;
-                    for (j = 0; j < n; j++)
+                    for (i = 0; i < 3; i++)
                     {
-                        dy[i] += dxd[k] * w[j];
-                        k += 3;
+                        y[i] = x[i];
                     }
-                    y[i] = x[i] + dy[i] + (ycp[i] - xcp[i]);
                 }
+                fprintf(fpout, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
             }
             else
             {
-                for (i = 0; i < 3; i++)
+                if (np > 0)         /* no error for empty lines */
                 {
-                    y[i] = x[i];
+                    fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
                 }
-            }
-            fprintf(fp1, format7, name, x[0], x[1], x[2], y[0], y[1], y[2]);
-        }
-        else
-        {
-            if (np > 0)         /* no error for empty lines */
-            {
-                fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
             }
         }
     }
-    fclose(fp1);
-    fclose(fp0);
+    else
+    {
+        fprintf(fpout, "No mating points found! Calculation is not possible!\n");
+    }
+    fclose(fpout);
+    fclose(fpin);
 
     return 0;
 }

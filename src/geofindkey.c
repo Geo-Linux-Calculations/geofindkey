@@ -1,8 +1,8 @@
 /*
 Name: geofindkey.c
 OldName: findkey.c
-Version: 3.0
-Date: 2021-12-20
+Version: 3.1
+Date: 2021-12-30
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -55,17 +55,9 @@ diff:
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
+#include "geofindkey.h"
 
 #define PNAME "GeoFindKey"
-#define PVERSION "3.0"
-
-#define defMScale "NORM"
-#define defREarth 6370009.0
 
 void geofindkeytitle()
 {
@@ -76,9 +68,9 @@ void geofindkeyusage()
 {
     fprintf(stderr, "usage: geofindkey [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -m str  rescale mode {NORM,EQUAL,EARCH}, default=NORM\n");
-    fprintf(stderr, "          -r N.N  radius Earth, default=6370009.0\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=%d\n", defDecimals);
+    fprintf(stderr, "          -m str  rescale mode {NORM,EQUAL,EARCH}, default=%s\n", defMScale);
+    fprintf(stderr, "          -r N.N  radius Earth, default=%g\n", defREarth);
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -140,11 +132,11 @@ int main(int argc, char *argv[])
     double a[2][3], scale, rotation, ay, az, da, say, saz, ds;
     double s[8];
     int i, np;
-    FILE *fp0, *fp1;
+    FILE *fpin, *fpout;
 
     int opt;
     char* mscale;
-    int decimals = 4;   /* number of decimals in the calculated coordinates */
+    int decimals = defDecimals;   /* number of decimals in the calculated coordinates */
     double RE = defREarth;
     int frescale = 0;
     mscale = defMScale;
@@ -188,9 +180,14 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    if ((fp0 = fopen(argv[optind], "r")) == NULL)
+    if ((fpin = fopen(argv[optind], "r")) == NULL)
     {
         fprintf(stderr, "can't open %s\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
+    {
+        fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
     }
 
@@ -198,14 +195,14 @@ int main(int argc, char *argv[])
     if (frescale == 0) mscale = defMScale;
 
     /* подсчитать сумму координат */
-    n = 0;
+    n = 0.0;
     for (i = 0; i < 8; i++)
     {
         s[i] = 0.0;
     }
     xc[3] = 0.0;
     yc[3] = 0.0;
-    while (fgets(buf, 1024, fp0) != NULL)
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
         if (np >= 8)
@@ -222,224 +219,226 @@ int main(int argc, char *argv[])
             yc[3] += (x[2] * x[2]) * wgt;
         }
     }
-    n = (wgts > 0.0) ? wgts : n;
     if (n > 0.0)
     {
-        xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
-        xc[3] *= 2.0;
-        xc[3] /= n;
-        xc[3] = (xc[3] > 0.0) ? (1.0 / sqrt(xc[3])) : 1.0;
-        yc[3] -= (s[2] * s[2])/ n;
-        yc[3] *= 2.0;
-        yc[3] /= n;
-        yc[3] = (yc[3] > 0.0) ? (1.0 / sqrt(yc[3])) : 1.0;
-    }
-    else
-    {
-        xc[3] = 1.0;
-        yc[3] = 1.0;
-    }
-    rewind(fp0);
-
-    /* найти центр масс */
-    for (i = 0; i < 3; i++)
-    {
-        xc[i] = s[i];
-        yc[i] = s[3 + i];
+        n = (wgts > 0.0) ? wgts : n;
         if (n > 0.0)
         {
-            xc[i] /= n;
-            yc[i] /= n;
-        }
-    }
-
-    /* подсчитать сумму произведений */
-    for (i = 0; i < 8; i++)
-    {
-        s[i] = 0.;
-    }
-    while (fgets(buf, 1024, fp0) != NULL)
-    {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        if (np >= 8)
-        {
-            /* вычислить разности */
-
-            for (i = 0; i < 3; i++)
-            {
-                dx[i] = x[i] - xc[i];
-                dy[i] = y[i] - yc[i];
-            }
-            dx[0] *= xc[3];
-            dx[1] *= xc[3];
-            dx[2] *= yc[3];
-            /* суммировать */
-            s[0] += dx[0] * dy[0] * wgt;
-            s[1] += dx[1] * dy[1] * wgt;
-            s[2] += dx[2] * dx[2] * wgt;
-            s[3] += dx[0] * dy[1] * wgt;
-            s[4] += dx[1] * dy[0] * wgt;
-            s[5] += dy[2] * dx[2] * wgt;
-            s[6] += (dx[0] * dx[0] + dx[1] * dx[1]) * wgt;
-        }
-    }
-    rewind(fp0);
-
-    /* найти первичные параметры */
-    a[1][0] = (s[0] + s[1]) * xc[3];
-    a[1][1] = (s[3] - s[4]) * xc[3];
-    if (s[6] > 0.0)
-    {
-        a[1][0] /= s[6];
-        a[1][1] /= s[6];
-    }
-    else
-    {
-        a[1][0] = 1.0;
-        a[1][1] = 0.0;
-    }
-    if (s[2] > 0.0)
-    {
-        a[1][2] = s[5] / s[2] * yc[3];
-    }
-    else
-    {
-        a[1][2] = 1.0;
-    }
-
-    /* найти вторичные параметры */
-    scale = hypot(a[1][0], a[1][1]);
-    rotation = atan2(a[1][1], a[1][0]);
-
-    if(frescale > 0)
-    {
-        if (scale > 0.0)
-        {
-            a[1][0] /= scale;
-            a[1][1] /= scale;
-        }
-        a[1][2] = 1.0;
-        if(frescale > 1)
-        {
-            if (RE > 0.0)
-            {
-                a[1][0] *= (1.0 - yc[2] / RE);
-                a[1][1] *= (1.0 - yc[2] / RE);
-            }
-        }
-    }
-
-    a[0][0] = yc[0] - a[1][0] * xc[0] + a[1][1] * xc[1];
-    a[0][1] = yc[1] - a[1][1] * xc[0] - a[1][0] * xc[1];
-    a[0][2] = yc[2] - a[1][2] * xc[2];
-
-    /* вывести параметры в файл ключа */
-    if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
-    {
-        fprintf(stderr, "can't create %s\n", argv[2]);
-        exit(EXIT_FAILURE);
-    }
-    fprintf(fp1, "key:\n");
-    fprintf(fp1, "(%s)\n", mscale);
-    fprintf(fp1, "--0-----\n");
-    for (i = 0; i < 3; i++)
-    {
-        fprintf(fp1, "%.4f\n", a[0][i]);
-    }
-    fprintf(fp1, "--1-----\n");
-    for (i = 0; i < 3; i++)
-    {
-        fprintf(fp1, "%.12f\n", a[1][i]);
-    }
-    fprintf(fp1, "========\n");
-    fprintf(fp1, "%.12f\n", scale);
-    fprintf(fp1, "%+.10f\n", rotation * 180.0 / M_PI);
-    fprintf(fp1, "\n");
-
-    /* вывести данные вместе с невязками */
-    fprintf(fp1, "var:\n");
-    for (i = 0; i < 8; i++)
-    {
-        s[i] = 0.0;
-    }
-    while (fgets(buf, 1024, fp0) != NULL)
-    {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        if (np >= 4)
-        {
-            /* "наблюдённые" dx[], dy[] */
-            for (i = 0; i < 3; i++)
-            {
-                dx[i] = x[i] - xc[i];
-                dy[i] = y[i] - yc[i];
-            }
-            /* "вычисленные" dy[] */
-            z[0] = a[0][0] + a[1][0] * x[0] - a[1][1] * x[1];
-            z[1] = a[0][1] + a[1][1] * x[0] + a[1][0] * x[1];
-            z[2] = a[0][2] + a[1][2] * x[2];
-            if (np >= 8)
-            {
-                for (i = 0; i < 3; i++)
-                {
-                    dy[i] = y[i] - yc[i];
-                    dz[i] = z[i] - yc[i];
-                    vdz[i] = z[i] - y[i];
-                    s[i] += (vdz[i] * vdz[i]) * wgt;
-                }
-                az = atan2(dz[1], dz[0]);
-                saz = hypot(dz[0], dz[1]);
-                ay = atan2(dy[1], dy[0]);
-                say = hypot(dy[0], dy[1]);
-                ds = say - saz;
-                s[3] += ds * ds * wgt;
-                da = ay - az;
-                da *= 180. / M_PI;
-                if (da > 180)
-                {
-                    da -= 360;
-                }
-                if (da < -180)
-                {
-                    da += 360;
-                }
-                s[4] += da * da * say * wgt;
-                s[6] += say * wgt;
-                fprintf(fp1, format13, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, vdz[0], vdz[1], vdz[2], da, ds);
-            }
-            else
-            {
-                fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
-            }
+            xc[3] -= (s[0] * s[0] + s[1] * s[1] )/ n;
+            xc[3] *= 2.0;
+            xc[3] /= n;
+            xc[3] = (xc[3] > 0.0) ? (1.0 / sqrt(xc[3])) : 1.0;
+            yc[3] -= (s[2] * s[2])/ n;
+            yc[3] *= 2.0;
+            yc[3] /= n;
+            yc[3] = (yc[3] > 0.0) ? (1.0 / sqrt(yc[3])) : 1.0;
         }
         else
         {
-            if (np > 0)         /* no error for empty lines */
+            xc[3] = 1.0;
+            yc[3] = 1.0;
+        }
+        rewind(fpin);
+
+        /* найти центр масс */
+        for (i = 0; i < 3; i++)
+        {
+            xc[i] = s[i];
+            yc[i] = s[3 + i];
+            if (n > 0.0)
             {
-                fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+                xc[i] /= n;
+                yc[i] /= n;
             }
         }
-    }
-    if (n > 0.0)
-    {
-        for (i = 0; i < 4; i++)
+
+        /* подсчитать сумму произведений */
+        for (i = 0; i < 8; i++)
         {
-            s[i] /= n;
+            s[i] = 0.;
         }
+        while (fgets(buf, 1024, fpin) != NULL)
+        {
+            np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+            if (np >= 8)
+            {
+                /* вычислить разности */
+
+                for (i = 0; i < 3; i++)
+                {
+                    dx[i] = x[i] - xc[i];
+                    dy[i] = y[i] - yc[i];
+                }
+                dx[0] *= xc[3];
+                dx[1] *= xc[3];
+                dx[2] *= yc[3];
+                /* суммировать */
+                s[0] += dx[0] * dy[0] * wgt;
+                s[1] += dx[1] * dy[1] * wgt;
+                s[2] += dx[2] * dx[2] * wgt;
+                s[3] += dx[0] * dy[1] * wgt;
+                s[4] += dx[1] * dy[0] * wgt;
+                s[5] += dy[2] * dx[2] * wgt;
+                s[6] += (dx[0] * dx[0] + dx[1] * dx[1]) * wgt;
+            }
+        }
+        rewind(fpin);
+
+        /* найти первичные параметры */
+        a[1][0] = (s[0] + s[1]) * xc[3];
+        a[1][1] = (s[3] - s[4]) * xc[3];
+        if (s[6] > 0.0)
+        {
+            a[1][0] /= s[6];
+            a[1][1] /= s[6];
+        }
+        else
+        {
+            a[1][0] = 1.0;
+            a[1][1] = 0.0;
+        }
+        if (s[2] > 0.0)
+        {
+            a[1][2] = s[5] / s[2] * yc[3];
+        }
+        else
+        {
+            a[1][2] = 1.0;
+        }
+
+        /* найти вторичные параметры */
+        scale = hypot(a[1][0], a[1][1]);
+        rotation = atan2(a[1][1], a[1][0]);
+
+        if(frescale > 0)
+        {
+            if (scale > 0.0)
+            {
+                a[1][0] /= scale;
+                a[1][1] /= scale;
+            }
+            a[1][2] = 1.0;
+            if(frescale > 1)
+            {
+                if (RE > 0.0)
+                {
+                    a[1][0] *= (1.0 - yc[2] / RE);
+                    a[1][1] *= (1.0 - yc[2] / RE);
+                }
+            }
+        }
+
+        a[0][0] = yc[0] - a[1][0] * xc[0] + a[1][1] * xc[1];
+        a[0][1] = yc[1] - a[1][1] * xc[0] - a[1][0] * xc[1];
+        a[0][2] = yc[2] - a[1][2] * xc[2];
+
+        /* вывести параметры в файл ключа */
+        fprintf(fpout, "key:\n");
+        fprintf(fpout, "(%s)\n", mscale);
+        fprintf(fpout, "--0-----\n");
+        for (i = 0; i < 3; i++)
+        {
+            fprintf(fpout, "%.4f\n", a[0][i]);
+        }
+        fprintf(fpout, "--1-----\n");
+        for (i = 0; i < 3; i++)
+        {
+            fprintf(fpout, "%.12f\n", a[1][i]);
+        }
+        fprintf(fpout, "========\n");
+        fprintf(fpout, "%.12f\n", scale);
+        fprintf(fpout, "%+.10f\n", rotation * 180.0 / M_PI);
+        fprintf(fpout, "\n");
+
+        /* вывести данные вместе с невязками */
+        fprintf(fpout, "var:\n");
+        for (i = 0; i < 8; i++)
+        {
+            s[i] = 0.0;
+        }
+        while (fgets(buf, 1024, fpin) != NULL)
+        {
+            np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+            if (np >= 4)
+            {
+                /* "наблюдённые" dx[], dy[] */
+                for (i = 0; i < 3; i++)
+                {
+                    dx[i] = x[i] - xc[i];
+                    dy[i] = y[i] - yc[i];
+                }
+                /* "вычисленные" dy[] */
+                z[0] = a[0][0] + a[1][0] * x[0] - a[1][1] * x[1];
+                z[1] = a[0][1] + a[1][1] * x[0] + a[1][0] * x[1];
+                z[2] = a[0][2] + a[1][2] * x[2];
+                if (np >= 8)
+                {
+                    for (i = 0; i < 3; i++)
+                    {
+                        dy[i] = y[i] - yc[i];
+                        dz[i] = z[i] - yc[i];
+                        vdz[i] = z[i] - y[i];
+                        s[i] += (vdz[i] * vdz[i]) * wgt;
+                    }
+                    az = atan2(dz[1], dz[0]);
+                    saz = hypot(dz[0], dz[1]);
+                    ay = atan2(dy[1], dy[0]);
+                    say = hypot(dy[0], dy[1]);
+                    ds = say - saz;
+                    s[3] += ds * ds * wgt;
+                    da = ay - az;
+                    da *= 180. / M_PI;
+                    if (da > 180)
+                    {
+                        da -= 360;
+                    }
+                    if (da < -180)
+                    {
+                        da += 360;
+                    }
+                    s[4] += da * da * say * wgt;
+                    s[6] += say * wgt;
+                    fprintf(fpout, format13, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, vdz[0], vdz[1], vdz[2], da, ds);
+                }
+                else
+                {
+                    fprintf(fpout, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+                }
+            }
+            else
+            {
+                if (np > 0)         /* no error for empty lines */
+                {
+                    fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+                }
+            }
+        }
+        if (n > 0.0)
+        {
+            for (i = 0; i < 4; i++)
+            {
+                s[i] /= n;
+            }
+        }
+        if (s[6] > 0.0)
+        {
+            s[4] /= s[6];
+        }
+        for (i = 0; i < 5; i++)
+        {
+            s[i] *= 2.0;
+            s[i] = sqrt(s[i]);
+        }
+        fprintf(fpout, "\n");
+        fprintf(fpout, "diff:\n");
+        fprintf(fpout, format5, s[0], s[1], s[2], s[4], s[3]);
     }
-    if (s[6] > 0.0)
+    else
     {
-        s[4] /= s[6];
+        fprintf(fpout, "No mating points found! Calculation is not possible!\n");
     }
-    for (i = 0; i < 5; i++)
-    {
-        s[i] *= 2.0;
-        s[i] = sqrt(s[i]);
-    }
-    fprintf(fp1, "\n");
-    fprintf(fp1, "diff:\n");
-    fprintf(fp1, format5, s[0], s[1], s[2], s[4], s[3]);
-    fclose(fp1);
-    fclose(fp0);
+    fclose(fpout);
+    fclose(fpin);
 
     return 0;
 }

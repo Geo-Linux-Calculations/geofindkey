@@ -1,9 +1,9 @@
 /*
 Name: geohelmert3d.c
-(use Gauss normalize)
+(use Gauss normalize @zvezdochiot[https://geodesist.ru/members/zvezdochiot.47244/])
 (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
-Version: 3.0
-Date: 2021-12-20
+Version: 3.1
+Date: 2021-12-30
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -31,14 +31,15 @@ Mean: 4
 M 1522.6450 -218.9275 64.9175 83651.7550 46867.7100 214.9200
 NORM = 0.000285193
 cond(G) = 7.24047
+Units: DEG
 key:
  82135.4074
  47128.1438
  150.0150
- 0.999787994766
- 1.17227e-06
- -9.68991e-07
- -0.0272898
+ -212.0052
+ 6.71662e-05
+ -5.55191e-05
+ -1.56359
 
 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0024 -0.0008 +0.0126
 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 -0.0165 +0.0132 -0.0033
@@ -54,16 +55,9 @@ diff:
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
+#include "geofindkey.h"
 
 #define PNAME "GeoHelmert3D"
-#define PVERSION "3.0"
-
-#define defUnits "RAD"
 
 void geohelmert3dtitle()
 {
@@ -74,8 +68,8 @@ void geohelmert3dusage()
 {
     fprintf(stderr, "usage: geohelmert3d [option] input-file report-file\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "          -d N    decimal after comma, default=4\n");
-    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=DEG\n");
+    fprintf(stderr, "          -d N    decimal after comma, default=%d\n", defDecimals);
+    fprintf(stderr, "          -u str  units angles {RAD,DEG,GON,DMS}, default=%s\n", defUnits);
     fprintf(stderr, "          -h      this help\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "input-file(sample):\n");
@@ -93,14 +87,15 @@ void geohelmert3dusage()
     fprintf(stderr, " M 1522.6450 -218.9275 64.9175 83651.7550 46867.7100 214.9200\n");
     fprintf(stderr, " NORM = 0.000285193\n");
     fprintf(stderr, " cond(G) = 7.24047\n");
+    fprintf(stderr, " Units: DEG\n");
     fprintf(stderr, " key:\n");
     fprintf(stderr, "  82135.4074\n");
     fprintf(stderr, "  47128.1438\n");
     fprintf(stderr, "  150.0150\n");
-    fprintf(stderr, "  0.999787994766\n");
-    fprintf(stderr, "  1.17227e-06\n");
-    fprintf(stderr, "  -9.68991e-07\n");
-    fprintf(stderr, "  -0.0272898\n");
+    fprintf(stderr, "  -212.0052\n");
+    fprintf(stderr, "  6.71662e-05\n");
+    fprintf(stderr, "  -5.55191e-05\n");
+    fprintf(stderr, "  -1.56359\n");
     fprintf(stderr, " \n");
     fprintf(stderr, " 1 1334.7100 285.9400 66.2900 83477.6400 47377.6000 216.2800 1 -0.0024 -0.0008 +0.0126\n");
     fprintf(stderr, " 2 563.6700 -5197.3400 60.2100 82557.1400 41916.5100 210.2100 1 -0.0165 +0.0132 -0.0033\n");
@@ -113,128 +108,6 @@ void geohelmert3dusage()
     fprintf(stderr, " \n");
     fprintf(stderr, " diff:\n");
     fprintf(stderr, " 0.0269 0.0248 0.0104\n");
-}
-
-double minv(double *a, int n)
-{
-    int lc, *le;
-    double s, t, tq = 0.0, zr = 1.0e-15, sumaa, conda;
-    double *pa, *pd, *ps, *p, *q, *q0;
-    int i, j, k, m;
-    le = (int *)malloc(n * sizeof(int));
-    q0 = (double *)malloc(n * sizeof(double));
-    sumaa = 0.0;
-    for(j = 0, pa = a; j < (n * n); ++j, ++pa) sumaa += (*pa * *pa);
-    conda = sqrt(sumaa);
-    for(j = 0, pa = pd = a; j < n; ++j, ++pa, pd += (n + 1))
-    {
-        if(j > 0)
-        {
-            for(i = 0, q = q0, p = pa; i < n; ++i, p += n) *q++ = *p;
-            for(i = 1; i < n; i++)
-            {
-                lc = (i < j) ? i : j;
-                for(k = 0, p = (pa + i * n - j), q = q0, t = 0.; k < lc; ++k) t += (*p++ * *q++);
-                q0[i] -= t;
-            }
-            for(i = 0, q = q0, p = pa; i < n; ++i,p += n) *p = *q++;
-        }
-        s = fabs(*pd);
-        lc = j;
-        for(k = (j + 1), ps = pd; k < n; ++k)
-        {
-            if((t = fabs(*(ps += n)))>s)
-            {
-                s = t;
-                lc = k;
-            }
-        }
-        tq = (tq > s) ? tq : s;
-        if(s < (zr * tq))
-        {
-            free(le-j);
-            free(q0);
-            return -1.0;
-        }
-        *le++ = lc;
-        if(lc != j)
-        {
-            for(k = 0, p = (a + n * j), q = (a + n * lc); k < n; ++k)
-            {
-                t = *p;
-                *p++ = *q;
-                *q++ = t;
-            }
-        }
-        for(k = (j + 1), ps = pd, t = (1.0 / *pd); k < n; ++k) *(ps += n) *= t;
-        *pd = t;
-    }
-    for(j = 1, pd = ps = a; j < n; j++)
-    {
-        for(k = 0, pd += (n + 1), q = ++ps; k < j; ++k, q += n) *q *= *pd;
-    }
-    for(j = 1, pa = a; j < n; j++)
-    {
-        pa++;
-        for(i = 0, q = q0, p = pa; i < j; ++i, p += n) *q++ = *p;
-        for(k = 0; k < j; k++)
-        {
-            t = 0.0;
-            for(i = k, p = (pa + k * n + k - j), q = (q0 + k); i < j; ++i) t -= (*p++ * *q++);
-            q0[k] = t;
-        }
-        for(i = 0, q = q0, p = pa; i < j; i++, p += n) *p = *q++;
-    }
-    for(j = (n - 2), pd = pa = (a + n * n - 1); j >= 0; --j)
-    {
-        pa--;
-        pd -= (n + 1);
-        for(i = 0, m = (n - j - 1), q = q0, p = (pd + n); i < m; ++i, p += n) *q++ = *p;
-        for(k = (n - 1), ps = pa; k > j; --k, ps -= n)
-        {
-            t = -(*ps);
-            for(i = (j + 1), p = ps, q = q0; i < k; ++i) t -= (*++p * *q++);
-            q0[--m] =t ;
-        }
-        for(i = 0, m = (n - j - 1), q = q0, p = (pd + n); i < m; ++i, p += n) *p = *q++;
-    }
-    for(k = 0, pa = a; k < (n - 1); ++k, ++pa)
-    {
-        for(i = 0, q = q0, p = pa; i < n; ++i, p += n) *q++ = *p;
-        for(j = 0, ps = a; j < n; ++j, ps += n)
-        {
-            if(j > k)
-            {
-                t = 0.0;
-                p = ps + j;
-                i = j;
-            }
-            else
-            {
-                t = q0[j];
-                p = ps + k + 1;
-                i = k + 1;
-            }
-            for(; i < n;) t += (*p++ * q0[i++]);
-            q0[j] = t;
-        }
-        for(i = 0, q = q0, p = pa; i < n; ++i, p += n) *p = *q++;
-    }
-    for(j = (n - 2), le--; j >= 0; --j)
-    {
-        for(k = 0, p = (a + j), q = (a + *(--le)); k < n; ++k, p += n, q += n)
-        {
-            t = *p;
-            *p = *q;
-            *q = t;
-        }
-    }
-    free(le);
-    free(q0);
-    sumaa = 0.0;
-    for(j = 0, pa = a; j < (n * n); ++j, ++pa) sumaa += (*pa * *pa);
-    conda *= sqrt(sumaa);
-    return conda;
 }
 
 int ANGLEID(char* units)
@@ -258,11 +131,11 @@ int main(int argc, char *argv[])
 
     unsigned i, j, t;
     int np;
-    FILE *fp0, *fp1;
+    FILE *fpin, *fpout;
 
     int opt;
-    int decimals = 4;   /* number of decimals in the calculated coordinates */
-    char* units = defUnits;;
+    int decimals = defDecimals;   /* number of decimals in the calculated coordinates */
+    char* units = defUnits;
     int fhelp = 0;
 
     gmat = (double *)malloc(16 * sizeof(double));
@@ -304,12 +177,12 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    if ((fp0 = fopen(argv[optind], "r")) == NULL)
+    if ((fpin = fopen(argv[optind], "r")) == NULL)
     {
         fprintf(stderr, "can't open %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-    if ((fp1 = fopen(argv[optind + 1], "w")) == NULL)
+    if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
     {
         fprintf(stderr, "can't create %s\n", argv[2]);
         exit(EXIT_FAILURE);
@@ -324,7 +197,7 @@ int main(int argc, char *argv[])
     }
     n = 0.0;
     wgts = 0.0;
-    while (fgets(buf, 1024, fp0) != NULL)
+    while (fgets(buf, 1024, fpin) != NULL)
     {
         np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
         if (np >= 8)
@@ -339,10 +212,10 @@ int main(int argc, char *argv[])
             n++;
         }
     }
-    n = (wgts > 0.0) ? wgts : n;
-    gnorm = 0.0;
     if (n > 0.0)
     {
+        n = (wgts > 0.0) ? wgts : n;
+        gnorm = 0.0;
         for (j = 0; j < 3; j++)
         {
             xcp[j] /= n;
@@ -351,166 +224,173 @@ int main(int argc, char *argv[])
             xs[j] -= (xcp[j] * xcp[j]);
             gnorm += xs[j];
         }
-    }
-    gnorm = (gnorm > 0) ? (1.0 / sqrt(gnorm)) : 1.0;
-    fprintf(fp1, "Mean: %g\n", n);
-    fprintf(fp1, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
-    fprintf(fp1, "NORM = %g\n", gnorm);
-    rewind(fp0);
+        gnorm = (gnorm > 0) ? (1.0 / sqrt(gnorm)) : 1.0;
+        fprintf(fpout, "Mean: %g\n", n);
+        fprintf(fpout, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
+        fprintf(fpout, "NORM = %g\n", gnorm);
+        rewind(fpin);
 
-    for (j = 0; j < 16; j++)
-    {
-        gmat[j] = 0.0;
-    }
-    for (j = 0; j < 4; j++)
-    {
-        gvec[j] = 0.0;
-    }
-    for (j = 0; j < 3; j++)
-    {
-        xs[j] = 0.0;
-    }
-    while (fgets(buf, 1024, fp0) != NULL)
-    {
-        np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-        if (np >= 8)
+        for (j = 0; j < 16; j++)
         {
-            for (i = 0; i < 3; i++)
-            {
-                x[i] -= xcp[i];
-                x[i] *= gnorm;
-                xs[i] = (x[i] * x[i] * wgt);
-                y[i] -= ycp[i];
-                y[i] *= gnorm;
-            }
-            gmat[0] += (xs[0] + xs[1] + xs[2]);
-            gmat[5] += (xs[1] + xs[2]);
-            gmat[6] -= (x[0] * x[1] * wgt);
-            gmat[7] -= (x[0] * x[2] * wgt);
-            gmat[10] += xs[0] + xs[2];
-            gmat[11] -= (x[1] * x[2] * wgt);
-            gmat[15] += xs[0] + xs[1];
-            gvec[0] += ((x[0] * y[0] + x[1] * y[1] + x[2] * y[2]) * wgt);
-            gvec[1] += ((x[1] * y[2] - x[2] * y[1]) * wgt);
-            gvec[2] += ((x[2] * y[0] - x[0] * y[2]) * wgt);
-            gvec[3] += ((x[0] * y[1] - x[1] * y[0]) * wgt);
+            gmat[j] = 0.0;
         }
-    }
-    gmat[9] = gmat[6];
-    gmat[13] = gmat[7];
-    gmat[14] = gmat[11];
-    condg = minv(gmat, 4);
-    fprintf(fp1, "cond(G) = %g\n", condg);
-    rewind(fp0);
-
-    if (condg > 0.0)
-    {
-        for (i = 0; i < 4; i++)
+        for (j = 0; j < 4; j++)
         {
-            hparam[i + 3] = 0.0;
-            for (j = 0; j < 4; j++)
-            {
-                hparam[i + 3] += gmat[i * 4 + j] * gvec[j];
-            }
+            gvec[j] = 0.0;
         }
-        hparam[0] = ycp[0] - hparam[3] * xcp[0] + hparam[6] * xcp[1] - hparam[5] * xcp[2];
-        hparam[1] = ycp[1] - hparam[3] * xcp[1] + hparam[4] * xcp[2] - hparam[6] * xcp[0];
-        hparam[2] = ycp[2] - hparam[3] * xcp[2] + hparam[5] * xcp[0] - hparam[4] * xcp[1];
-        fprintf(fp1, "key:\n");
-        for (j = 0; j < 3; j++)
-        {    
-            fprintf(fp1, format1, hparam[j]);
-        }
-        switch(t)
-        {
-        case 1:
-            ku = 180.0 / M_PI;
-            fprintf(fp1, format1, ((hparam[3] - 1.0) * 1e6));
-            for (j = 4; j < 7; j++)
-            {    
-                fprintf(fp1, " %g\n", (hparam[j] * ku));
-            }
-            break;
-        case 2:
-            ku = 180.0 * 60.0 * 60.0 / M_PI;
-            fprintf(fp1, format1, ((hparam[3] - 1.0) * 1e6));
-            for (j = 4; j < 7; j++)
-            {    
-                fprintf(fp1, format1, (hparam[j] * ku));
-            }
-            break;
-        case 3:
-            ku = 200.0 / M_PI;
-            fprintf(fp1, format1, ((hparam[3] - 1.0) * 1e6));
-            for (j = 4; j < 7; j++)
-            {    
-                fprintf(fp1, " %g\n", (hparam[j] * ku));
-            }
-            break;
-        case 0:
-        default:
-            fprintf(fp1, " %.12f\n", hparam[3]);
-            for (j = 4; j < 7; j++)
-            {    
-                fprintf(fp1, " %g\n", hparam[j]);
-            }
-            break;
-        }
-        fprintf(fp1, "\n");
-
         for (j = 0; j < 3; j++)
         {
             xs[j] = 0.0;
         }
-        while (fgets(buf, 1024, fp0) != NULL)
+        while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
-            if (np >= 4)
+            if (np >= 8)
             {
-                z[0] = hparam[0] + hparam[3] * x[0] - hparam[6] * x[1] + hparam[5] * x[2];
-                z[1] = hparam[1] + hparam[3] * x[1] + hparam[6] * x[0] - hparam[4] * x[2];
-                z[2] = hparam[2] + hparam[3] * x[2] - hparam[5] * x[0] + hparam[4] * x[1];
-                if (np >= 8)
+                for (i = 0; i < 3; i++)
                 {
-                    for (i = 0; i < 3; i++)
+                    x[i] = gaussnorm(x[i], xcp[i], gnorm);
+                    xs[i] = (x[i] * x[i] * wgt);
+                    y[i] = gaussnorm(y[i], ycp[i], gnorm);
+                }
+                gmat[0] += (xs[0] + xs[1] + xs[2]);
+                gmat[5] += (xs[1] + xs[2]);
+                gmat[6] -= (x[0] * x[1] * wgt);
+                gmat[7] -= (x[0] * x[2] * wgt);
+                gmat[10] += xs[0] + xs[2];
+                gmat[11] -= (x[1] * x[2] * wgt);
+                gmat[15] += xs[0] + xs[1];
+                gvec[0] += ((x[0] * y[0] + x[1] * y[1] + x[2] * y[2]) * wgt);
+                gvec[1] += ((x[1] * y[2] - x[2] * y[1]) * wgt);
+                gvec[2] += ((x[2] * y[0] - x[0] * y[2]) * wgt);
+                gvec[3] += ((x[0] * y[1] - x[1] * y[0]) * wgt);
+            }
+        }
+        gmat[9] = gmat[6];
+        gmat[13] = gmat[7];
+        gmat[14] = gmat[11];
+        condg = minv(gmat, 4);
+        fprintf(fpout, "cond(G) = %g\n", condg);
+        rewind(fpin);
+
+        if (condg > 0.0)
+        {
+            fprintf(fpout, "Units: %s\n", units);
+            for (i = 0; i < 4; i++)
+            {
+                hparam[i + 3] = 0.0;
+                for (j = 0; j < 4; j++)
+                {
+                    hparam[i + 3] += gmat[i * 4 + j] * gvec[j];
+                }
+            }
+            hparam[0] = ycp[0] - hparam[3] * xcp[0] + hparam[6] * xcp[1] - hparam[5] * xcp[2];
+            hparam[1] = ycp[1] - hparam[3] * xcp[1] + hparam[4] * xcp[2] - hparam[6] * xcp[0];
+            hparam[2] = ycp[2] - hparam[3] * xcp[2] + hparam[5] * xcp[0] - hparam[4] * xcp[1];
+            fprintf(fpout, "key:\n");
+            for (j = 0; j < 3; j++)
+            {
+                fprintf(fpout, format1, hparam[j]);
+            }
+            switch(t)
+            {
+            case 1:
+                ku = 180.0 / M_PI;
+                fprintf(fpout, format1, ((hparam[3] - 1.0) * 1e6));
+                for (j = 4; j < 7; j++)
+                {
+                    fprintf(fpout, " %g\n", (hparam[j] * ku));
+                }
+                break;
+            case 2:
+                ku = 180.0 * 60.0 * 60.0 / M_PI;
+                fprintf(fpout, format1, ((hparam[3] - 1.0) * 1e6));
+                for (j = 4; j < 7; j++)
+                {
+                    fprintf(fpout, format1, (hparam[j] * ku));
+                }
+                break;
+            case 3:
+                ku = 200.0 / M_PI;
+                fprintf(fpout, format1, ((hparam[3] - 1.0) * 1e6));
+                for (j = 4; j < 7; j++)
+                {
+                    fprintf(fpout, " %g\n", (hparam[j] * ku));
+                }
+                break;
+            case 0:
+            default:
+                fprintf(fpout, " %.12f\n", hparam[3]);
+                for (j = 4; j < 7; j++)
+                {
+                    fprintf(fpout, " %g\n", hparam[j]);
+                }
+                break;
+            }
+            fprintf(fpout, "\n");
+
+            for (j = 0; j < 3; j++)
+            {
+                xs[j] = 0.0;
+            }
+            while (fgets(buf, 1024, fpin) != NULL)
+            {
+                np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
+                if (np >= 4)
+                {
+                    z[0] = hparam[0] + hparam[3] * x[0] - hparam[6] * x[1] + hparam[5] * x[2];
+                    z[1] = hparam[1] + hparam[3] * x[1] + hparam[6] * x[0] - hparam[4] * x[2];
+                    z[2] = hparam[2] + hparam[3] * x[2] - hparam[5] * x[0] + hparam[4] * x[1];
+                    if (np >= 8)
                     {
-                        dz[i] = z[i] - y[i];
-                        xs[i] += (dz[i] * dz[i]) * wgt;
+                        for (i = 0; i < 3; i++)
+                        {
+                            dz[i] = z[i] - y[i];
+                            xs[i] += (dz[i] * dz[i]) * wgt;
+                        }
+                        fprintf(fpout, format11, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, dz[0], dz[1], dz[2]);
                     }
-                    fprintf(fp1, format11, name, x[0], x[1], x[2], y[0], y[1], y[2], wgt, dz[0], dz[1], dz[2]);
+                    else
+                    {
+                        fprintf(fpout, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+                    }
                 }
                 else
                 {
-                    fprintf(fp1, format7, name, x[0], x[1], x[2], z[0], z[1], z[2]);
+                    if (np > 0)         /* no error for empty lines */
+                    {
+                        fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+                    }
                 }
             }
-            else
+            if (n > 0.0)
             {
-                if (np > 0)         /* no error for empty lines */
+                for (i = 0; i < 3; i++)
                 {
-                    fprintf(stderr, "Error in input, lines kipped: \n%s\n", buf);
+                    xs[i] /= n;
                 }
             }
-        }
-        if (n > 0.0)
-        {
             for (i = 0; i < 3; i++)
             {
-                xs[i] /= n;
+                xs[i] *= 2.0;
+                xs[i] = sqrt(xs[i]);
             }
+            fprintf(fpout, "\n");
+            fprintf(fpout, "diff:\n");
+            fprintf(fpout, format3, xs[0], xs[1], xs[2]);
         }
-        for (i = 0; i < 3; i++)
+        else
         {
-            xs[i] *= 2.0;
-            xs[i] = sqrt(xs[i]);
+            fprintf(fpout, "The calculation is wrong!\n");
         }
-        fprintf(fp1, "\n");
-        fprintf(fp1, "diff:\n");
-        fprintf(fp1, format3, xs[0], xs[1], xs[2]);
+    }
+    else
+    {
+        fprintf(fpout, "No mating points found! Calculation is not possible!\n");
     }
     free(gmat);
-    fclose(fp1);
-    fclose(fp0);
+    fclose(fpout);
+    fclose(fpin);
 
     return 0;
 }
