@@ -5,8 +5,8 @@ Default params and functions.
 (use PQ-scheme by Alexander Starostin aka @stout[https://geodesist.ru/members/stout.228/])
 (use Last published version of CCMATH by Daniel Atkinson in 2001 (version 2.2.1)[https://github.com/mnhrdt/ccmath].)
 (use Gnumeric OLS spreadsheets [https://github.com/Geo-Linux-Calculations/gnumeric-ols])
-Version: 3.1
-Date: 2021-12-30
+Version: 3.2
+Date: 2022-01-04
 Author: Игорь Белов (https://gis-lab.info/forum/memberlist.php?mode=viewprofile&u=10457)
 Author: zvezdochiot (https://github.com/zvezdochiot)
 Author: Zoltan Siki (https://github.com/zsiki)
@@ -21,7 +21,7 @@ Author: Zoltan Siki (https://github.com/zsiki)
 #ifndef __GEOFINDKEY_H
 #define __GEOFINDKEY_H
 
-#define PVERSION "3.1"
+#define PVERSION "3.2"
 
 #define defDecimals 4
 #define defREarth 6370009.0

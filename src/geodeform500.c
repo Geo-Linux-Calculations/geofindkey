@@ -192,13 +192,12 @@ int main(int argc, char *argv[])
             n++;
         }
     }
-    if (n > 0.0)
+    if (wgts > 0.0)
     {
-        n = (wgts > 0.0) ? wgts : n;
         for (j = 0; j < 3; j++)
         {
-            xcp[j] /= n;
-            ycp[j] /= n;
+            xcp[j] /= wgts;
+            ycp[j] /= wgts;
         }
         fprintf(fpout, "Mean: %d\n", n);
         fprintf(fpout, format7, "M", xcp[0], xcp[1], xcp[2], ycp[0], ycp[1], ycp[2]);
@@ -208,6 +207,7 @@ int main(int argc, char *argv[])
         {
             xd[j] = 0.0;
         }
+        n = 0;
         while (fgets(buf, 1024, fpin) != NULL)
         {
             np = sscanf(buf, "%s %lf %lf %lf %lf %lf %lf %lf", name, &x[0], &x[1], &x[2], &y[0], &y[1], &y[2], &wgt);
@@ -224,6 +224,7 @@ int main(int argc, char *argv[])
                         r2 += (dxd[i + j] * dxd[i + j]);
                     }
                     r2d[n] = r2 * wgt;
+                    n++;
                 }
             }
         }
@@ -253,6 +254,7 @@ int main(int argc, char *argv[])
                             w[i] = r2d[i] / r2;
                         else
                             w[i] = 1.0 / r2;
+                        w[i] *= wgt;
                         s += w[i];
                     }
                     else
