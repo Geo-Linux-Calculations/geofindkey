@@ -21,7 +21,7 @@ Author: Zoltan Siki (https://github.com/zsiki)
 #ifndef __GEOFINDKEY_H
 #define __GEOFINDKEY_H
 
-#define PVERSION "3.2"
+#define PVERSION "3.3"
 
 #define defDecimals 4
 #define defREarth 6370009.0

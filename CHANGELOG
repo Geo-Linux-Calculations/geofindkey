@@ -2,6 +2,10 @@ Name: GeoFindKey
 OldName: FindKey
 URL: https://github.com/Geo-Linux-Calculations/geofindkey
 
+3.3
+
+    fix error message IO
+
 3.2
 
     fix coordinate deformation

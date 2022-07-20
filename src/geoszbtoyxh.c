@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     {
         if ((fpin = fopen(argv[optind], "r")) == NULL)
         {
-            fprintf(stderr, "can't open %s\n", argv[1]);
+            fprintf(stderr, "can't open %s\n", argv[optind]);
             exit(EXIT_FAILURE);
         }
     }
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     {
         if ((fpout = fopen(argv[optind + 1], "w")) == NULL)
         {
-            fprintf(stderr, "can't create %s\n", argv[2]);
+            fprintf(stderr, "can't create %s\n", argv[optind + 1]);
             exit(EXIT_FAILURE);
         }
     }
